@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+:root {
+  /* Base */
+  --bg: #09090B;
+  --bg-secondary: #18181B;
+
+  /* Glass */
+  --glass: rgba(255,255,255,0.05);
+  --glass-hover: rgba(255,255,255,0.08);
+
+  /* Border */
+  --border: rgba(221, 42, 42, 0.1);
+  --border-hover: rgba(255,255,255,0.20);
+
+  /* Text */
+  --text: #ffffff;
+  --text-secondary: rgba(255,255,255,0.60);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+
+  color: var(--text);
+  font-family: "Poppins", sans-serif;
+
+  background: #09090B;
+}
+
+/* Scrollbar */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
