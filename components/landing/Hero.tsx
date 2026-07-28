@@ -1,4 +1,3 @@
-import Link from "next/link";
 
 export default function Hero() {
   return (
@@ -50,7 +49,7 @@ export default function Hero() {
 
 
       {/* RIGHT SPACE */}
-      <div className="w-[520px]" />
+      <div className="w-520px" />
 
     </div>
   );

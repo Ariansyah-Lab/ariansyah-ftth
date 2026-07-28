@@ -165,7 +165,7 @@ return (
                   text-white/40
                 "
               >
-                No cable data
+                No line data
               </td>
 
 

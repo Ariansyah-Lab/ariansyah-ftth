@@ -2,9 +2,9 @@ import ToolCard from "./ToolCard";
 
 const tools = [
   {
-    title: "Cable Line Counter",
+    title: "Line Counter",
     description:
-      "FTTH cable analysis & route information.",
+      "FTTH line analysis & route information.",
     icon: "🔌",
     href: "/tools/cable-counter",
   },

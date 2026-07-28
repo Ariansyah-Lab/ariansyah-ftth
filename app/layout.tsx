@@ -14,7 +14,7 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
   title: "Ariansyah-Lab",
-  description: "KML Counter Dashboard",
+  description: "SND Toolkit Dashboard",
 };
 
 export default function RootLayout({

@@ -30,7 +30,7 @@ export default function Header() {
 
         <div>
           <h1 className="text-2xl font-semibold tracking-wide text-white">
-            Cable Line Counter
+            Line Counter
           </h1>
 
           <p className="text-sm text-white/50">
