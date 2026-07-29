@@ -22,6 +22,13 @@ const tools = [
     icon: "📄",
     href: "/tools/trk-permit",
   },
+  {
+    title: "EMR Standard Icon",
+    description:
+      "Standardize KMZ icons, colors, scales, and line styles.",
+    icon: "📍",
+    href: "/tools/emr-icon",
+  },
 ];
 
 export default function ToolSection() {
