@@ -30,6 +30,20 @@ const tools = [
     category: "Map Utilities",
     href: "/tools/emr-icon",
   },
+  {
+    title: "FTTH Point Editor",
+    description: "Rename, reorder, and export FTTH point data.",
+    icon: "🗺️",
+    category: "Spatial Utility",
+    href: "/tools/ftth-point-editor",
+  },
+  {
+    title: "FTTH Cable Snapper",
+    description: "Snap cable vertices to nearby poles and export corrected KMZ.",
+    icon: "🧲",
+    category: "Spatial Utility",
+    href: "/tools/ftth-cable-snapper",
+  },
 ];
 
 export default function ToolSection() {

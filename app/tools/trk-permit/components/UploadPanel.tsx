@@ -1,7 +1,12 @@
 "use client";
 
 import { UploadCloud } from "lucide-react";
-import type { ChangeEvent, Dispatch, SetStateAction } from "react";
+import type {
+  ChangeEvent,
+  Dispatch,
+  DragEvent,
+  SetStateAction,
+} from "react";
 import JSZip from "jszip";
 
 import type { CableResult } from "@/app/tools/trk-permit/utils/kmlParser";
@@ -12,11 +17,7 @@ type Props = {
 };
 
 export default function UploadPanel({ setData }: Props) {
-  async function handleUpload(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-
-    if (!file) return;
-
+  async function processFile(file: File) {
     let kmlText = "";
 
     if (file.name.toLowerCase().endsWith(".kml")) {
@@ -53,10 +54,33 @@ export default function UploadPanel({ setData }: Props) {
     setData(result);
   }
 
+  async function handleUpload(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    await processFile(file);
+    event.target.value = "";
+  }
+
+  async function handleDrop(event: DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+
+    const file = event.dataTransfer.files?.[0];
+
+    if (!file) return;
+
+    await processFile(file);
+  }
+
   return (
     <div className="rounded-[2rem] bg-[#dedfe1] p-5 shadow-[10px_10px_20px_#bfc0c3,-10px_-10px_20px_#f7f7f8] sm:p-6">
       <label className="block w-full cursor-pointer">
-        <div className="flex min-h-60 flex-col items-center justify-center gap-5 rounded-[1.5rem] bg-[#dedfe1] p-6 text-center shadow-[inset_6px_6px_12px_#bfc0c3,inset_-6px_-6px_12px_#f7f7f8] transition-all duration-200 hover:shadow-[inset_8px_8px_16px_#bfc0c3,inset_-8px_-8px_16px_#f7f7f8]">
+        <div
+          onDragOver={(event) => event.preventDefault()}
+          onDrop={handleDrop}
+          className="flex min-h-60 flex-col items-center justify-center gap-5 rounded-[1.5rem] bg-[#dedfe1] p-6 text-center shadow-[inset_6px_6px_12px_#bfc0c3,inset_-6px_-6px_12px_#f7f7f8] transition-all duration-200 hover:shadow-[inset_8px_8px_16px_#bfc0c3,inset_-8px_-8px_16px_#f7f7f8]"
+        >
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#dedfe1] text-[#68696d] shadow-[6px_6px_12px_#bfc0c3,-6px_-6px_12px_#f7f7f8]">
             <UploadCloud size={32} strokeWidth={1.6} />
           </div>
