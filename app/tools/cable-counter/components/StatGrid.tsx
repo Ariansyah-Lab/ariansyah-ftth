@@ -1,81 +1,48 @@
-import {
-  Ruler,
-  Cable,
-  ArrowUp,
-  ArrowDown,
-} from "lucide-react";
-
+import { Ruler, Cable, ArrowUp, ArrowDown } from "lucide-react";
 import StatCard from "./StatCard";
 
 import type { CableResult } from "@/app/tools/cable-counter/utils/kmlParser";
-
 
 type Props = {
   data: CableResult;
 };
 
-
-export default function StatGrid({
-  data,
-}: Props) {
-
+export default function StatGrid({ data }: Props) {
   const longest =
     data.lines.length > 0
-      ? Math.max(
-          ...data.lines.map(
-            (line) => line.length
-          )
-        )
+      ? Math.max(...data.lines.map((line) => line.length))
       : 0;
-
 
   const shortest =
     data.lines.length > 0
-      ? Math.min(
-          ...data.lines.map(
-            (line) => line.length
-          )
-        )
+      ? Math.min(...data.lines.map((line) => line.length))
       : 0;
 
-
   return (
-    <div
-      className="
-        grid
-        grid-cols-4
-        gap-5
-      "
-    >
-
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
       <StatCard
         title="Total Length"
         value={`${data.totalLength} m`}
-        icon={<Ruler />}
+        icon={<Ruler size={21} strokeWidth={1.8} />}
       />
-
 
       <StatCard
         title="Total Line"
         value={`${data.lines.length}`}
-        icon={<Cable />}
+        icon={<Cable size={21} strokeWidth={1.8} />}
       />
-
 
       <StatCard
         title="Longest Line"
         value={`${longest} m`}
-        icon={<ArrowUp />}
+        icon={<ArrowUp size={21} strokeWidth={1.8} />}
       />
-
 
       <StatCard
         title="Shortest Line"
         value={`${shortest} m`}
-        icon={<ArrowDown />}
+        icon={<ArrowDown size={21} strokeWidth={1.8} />}
       />
-
-
     </div>
   );
 }

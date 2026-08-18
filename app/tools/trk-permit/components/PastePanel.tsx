@@ -15,6 +15,7 @@ export default function PastePanel({ setData }: Props) {
 
   const handleProcess = () => {
     const xml = textareaRef.current?.value;
+
     if (!xml) return;
 
     const parser = new DOMParser();
@@ -24,75 +25,28 @@ export default function PastePanel({ setData }: Props) {
       folder
         ?.getElementsByTagName("name")[0]
         ?.textContent
-        ?.trim() ||
-      "Cable Line Data";
+        ?.trim() || "Cable Line Data";
 
     const result = parseKML(xml, title);
     setData(result);
   };
 
   return (
-    // ✅ Sekarang pakai wrapper dengan class sama persis seperti di cable-counter
-    <div
-      className="
-        rounded-2xl
-        border border-white/15
-        bg-white/8
-        backdrop-blur-xl
-        shadow-[0_20px_50px_rgba(0,0,0,0.35)]
-        p-5
-      "
-    >
-      <h2
-        className="
-          text-lg
-          font-semibold
-          text-white
-          text-center
-        "
-      >
+    <div className="rounded-[2rem] bg-[#dedfe1] p-5 shadow-[10px_10px_20px_#bfc0c3,-10px_-10px_20px_#f7f7f8] sm:p-6">
+      <h2 className="text-center text-xl font-semibold tracking-[-0.04em] text-[#3f4043]">
         Paste KML XML
       </h2>
 
       <textarea
         ref={textareaRef}
-        placeholder="Paste KML XML disini..."
-        className="
-          mt-5
-          w-full
-          h-40
-          resize-none
-          rounded-xl
-          bg-black/20
-          border border-white/15
-          p-4
-          text-sm
-          text-white
-          placeholder:text-white/30
-          outline-none
-          focus:border-white/30
-          transition
-        "
+        placeholder="Paste KML XML di sini..."
+        className="mt-5 h-40 w-full resize-none rounded-[1.5rem] bg-[#dedfe1] p-4 text-sm leading-6 text-[#3f4043] shadow-[inset_6px_6px_12px_#bfc0c3,inset_-6px_-6px_12px_#f7f7f8] outline-none transition-all duration-200 placeholder:text-[#a4a5a8] focus:shadow-[inset_8px_8px_16px_#bfc0c3,inset_-8px_-8px_16px_#f7f7f8]"
       />
 
       <button
+        type="button"
         onClick={handleProcess}
-        className="
-          mt-4
-          w-full
-          rounded-xl
-          bg-white/10
-          border border-white/15
-          py-3
-          text-sm
-          font-medium
-          text-white
-          cursor-pointer
-          transition-all
-          duration-200
-          hover:scale-105
-          hover:bg-white/15
-        "
+        className="mt-4 h-12 w-full cursor-pointer rounded-2xl bg-[#dedfe1] text-sm font-semibold text-[#4f5054] shadow-[7px_7px_14px_#bfc0c3,-7px_-7px_14px_#f7f7f8] transition-all duration-200 hover:-translate-y-0.5 hover:text-[#303135] active:translate-y-0 active:shadow-[inset_5px_5px_10px_#bfc0c3,inset_-5px_-5px_10px_#f7f7f8]"
       >
         Process KML
       </button>

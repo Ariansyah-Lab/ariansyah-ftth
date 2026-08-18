@@ -11,30 +11,15 @@ type Props = {
 
 export default function Sidebar({ setData, clearData }: Props) {
   return (
-    // ✅ Sekarang pakai aside, dengan lebar, padding, dan spacing yang sama persis
-    <aside className="w-80 p-6 space-y-6">
-      {/* ✅ Langsung render panel, tanpa wrapper tambahan */}
+    <aside className="w-full space-y-6 lg:w-80 lg:shrink-0">
       <UploadPanel setData={setData} />
+
       <PastePanel setData={setData} />
 
-      {/* ✅ Tombol Clear Data dengan class yang sama */}
       <button
+        type="button"
         onClick={clearData}
-        className="
-          w-full
-          rounded-xl
-          bg-white/10
-          border border-white/15
-          py-3
-          text-sm
-          font-medium
-          text-white
-          cursor-pointer
-          transition-all
-          duration-200
-          hover:scale-105
-          hover:bg-white/15
-        "
+        className="h-12 w-full cursor-pointer rounded-2xl bg-[#dedfe1] text-sm font-semibold text-[#68696d] shadow-[7px_7px_14px_#bfc0c3,-7px_-7px_14px_#f7f7f8] transition-all duration-200 hover:-translate-y-0.5 hover:text-[#303135] active:translate-y-0 active:shadow-[inset_5px_5px_10px_#bfc0c3,inset_-5px_-5px_10px_#f7f7f8]"
       >
         Clear Data
       </button>

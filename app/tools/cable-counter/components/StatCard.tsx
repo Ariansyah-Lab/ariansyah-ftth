@@ -1,64 +1,23 @@
-import React from "react";
+import type { ReactNode } from "react";
 
 type Props = {
   title: string;
   value: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
 };
 
-export default function StatCard({
-  title,
-  value,
-  icon,
-}: Props) {
+export default function StatCard({ title, value, icon }: Props) {
   return (
-    <div
-      className="
-        rounded-2xl
-        border border-white/15
-        bg-white/8
-        backdrop-blur-xl
-        shadow-[0_20px_50px_rgba(0,0,0,0.35)]
-        p-5
-        transition-all
-        duration-300
-        hover:-translate-y-1
-        hover:bg-white/10
-      "
-    >
-
-      <div
-        className="
-          w-11
-          h-11
-          rounded-xl
-          bg-white/10
-          border border-white/15
-          flex
-          items-center
-          justify-center
-          mb-5
-        "
-      >
+    <div className="rounded-[1.75rem] bg-[#dedfe1] p-5 text-[#3f4043] shadow-[9px_9px_18px_#bfc0c3,-9px_-9px_18px_#f7f7f8] transition duration-300 hover:-translate-y-1">
+      <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#dedfe1] text-[#77787c] shadow-[inset_5px_5px_10px_#bfc0c3,inset_-5px_-5px_10px_#f7f7f8]">
         {icon}
       </div>
 
+      <p className="text-sm text-[#77787c]">{title}</p>
 
-      <p className="text-sm text-white/60">
-        {title}
-      </p>
-
-
-      <h2 className="
-        mt-2
-        text-3xl
-        font-semibold
-        text-white
-      ">
+      <h2 className="mt-2 break-words text-3xl font-semibold tracking-[-0.05em] text-[#3f4043]">
         {value}
       </h2>
-
-
     </div>
   );
 }

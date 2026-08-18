@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-
 import JSZip from "jszip";
 
 import Header from "@/app/tools/popup-cleaner/components/Header";
@@ -24,8 +23,9 @@ export default function Home() {
 
   function getTopFolderName(kml: string) {
     const parser = new DOMParser();
-    const xml = parser.parseFromString(kml, "text/xml");
-    const folderName = xml.querySelector("Document > Folder > name");
+    const document = parser.parseFromString(kml, "text/xml");
+    const folderName = document.querySelector("Document > Folder > name");
+
     return folderName?.textContent?.trim() || "popup_cleaned";
   }
 
@@ -33,7 +33,7 @@ export default function Home() {
     text: string,
     name: string,
     type: "kml" | "kmz",
-    zipFile?: JSZip
+    zipFile?: JSZip,
   ) {
     setXml(text);
     setFileName(name);
@@ -44,6 +44,7 @@ export default function Home() {
 
   function handleProcess() {
     const input = xml || textareaRef.current?.value || "";
+
     if (!input) {
       alert("Upload atau Paste KML terlebih dahulu.");
       return;
@@ -54,7 +55,12 @@ export default function Home() {
       ? fileName.replace(/\.(kml|kmz)$/i, "")
       : getTopFolderName(input);
 
-    downloadFile(result.cleanedKml, cleanName, fileType, zip ?? undefined);
+    downloadFile(
+      result.cleanedKml,
+      cleanName,
+      fileType,
+      zip ?? undefined,
+    );
   }
 
   function handleClear() {
@@ -64,25 +70,32 @@ export default function Home() {
     setFileType("kml");
     setZip(null);
 
-    if (uploadClearRef.current) uploadClearRef.current();
-    if (textareaRef.current) textareaRef.current.value = "";
+    uploadClearRef.current?.();
+
+    if (textareaRef.current) {
+      textareaRef.current.value = "";
+    }
   }
 
   return (
-    <>
-      {/* ✅ Header dibungkus dengan class yang sama seperti sebelumnya */}
-      <header className="px-6 pt-3">
-        <Header />
-      </header>
+    <main className="min-h-screen bg-[#dedfe1] text-[#3f4043]">
+      <Header />
 
-      {/* ✅ Main dengan padding dan posisi tengah */}
-      <main className="flex justify-center px-6 py-8">
-        <div className="w-full max-w-2xl space-y-6">
-          <UploadPanel onUpload={handleUpload} clearRef={uploadClearRef} />
+      <section className="mx-auto w-full max-w-[1600px] px-5 pb-16 pt-6 sm:px-8 lg:px-12">
+        <div className="mx-auto max-w-3xl space-y-6">
+          <UploadPanel
+            onUpload={handleUpload}
+            clearRef={uploadClearRef}
+          />
+
           <PastePanel ref={textareaRef} />
-          <ActionButtons onProcess={handleProcess} onClear={handleClear} />
+
+          <ActionButtons
+            onProcess={handleProcess}
+            onClear={handleClear}
+          />
         </div>
-      </main>
-    </>
+      </section>
+    </main>
   );
 }

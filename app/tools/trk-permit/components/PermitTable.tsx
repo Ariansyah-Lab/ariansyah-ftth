@@ -1,329 +1,90 @@
+"use client";
+
 import type { CableResult } from "@/app/tools/trk-permit/utils/kmlParser";
 import { exportExcel } from "@/app/tools/trk-permit/utils/exportExcel";
-
 
 type Props = {
   data: CableResult;
 };
 
-
-export default function PermitTable({
-  data,
-}: Props) {
-
-
+export default function PermitTable({ data }: Props) {
   if (!data) return null;
 
-
-
   return (
-
-    <div>
-
-
-      <div
-        className="
-          flex
-          items-center
-          justify-between
-          mb-4
-        "
-      >
-
-        <h2
-          className="
-            text-lg
-            font-semibold
-            text-white
-          "
-        >
+    <section className="min-w-0">
+      <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="truncate text-xl font-semibold tracking-[-0.04em] text-[#3f4043] sm:text-2xl">
           {data.title}
         </h2>
 
-
-
         <button
+          type="button"
           onClick={() => exportExcel(data)}
-          className="
-            rounded-xl
-            bg-white/10
-            border border-white/15
-            px-4
-            py-2
-            text-sm
-            text-white
-            cursor-pointer
-            transition-all
-            duration-200
-            hover:scale-105
-            hover:bg-white/15
-          "
+          className="w-full cursor-pointer rounded-2xl bg-[#dedfe1] px-5 py-3 text-sm font-semibold text-[#4f5054] shadow-[7px_7px_14px_#bfc0c3,-7px_-7px_14px_#f7f7f8] transition-all duration-200 hover:-translate-y-0.5 hover:text-[#303135] active:translate-y-0 active:shadow-[inset_5px_5px_10px_#bfc0c3,inset_-5px_-5px_10px_#f7f7f8] sm:w-auto"
         >
           Export Excel
         </button>
-
-
       </div>
 
-
-
-
-      <div
-        className="
-          overflow-hidden
-          rounded-2xl
-          border border-white/10
-          bg-white/4
-          backdrop-blur-xl
-          shadow-[0_20px_50px_rgba(0,0,0,0.35)]
-        "
-      >
-
-
-        <table
-          className="
-            w-full
-            text-sm
-          "
-        >
-
-
-          <thead
-            className="
-              bg-white/6
-              text-white/70
-            "
-          >
-
-            <tr>
-
-
-              <th
-                className="
-                  px-5
-                  py-3
-                  text-left
-                  font-medium
-                "
-              >
-                No
-              </th>
-
-
-
-              <th
-                className="
-                  px-5
-                  py-3
-                  text-left
-                  font-medium
-                "
-              >
-                Nama Site
-              </th>
-
-
-
-              <th
-                className="
-                  px-5
-                  py-3
-                  text-left
-                  font-medium
-                "
-              >
-                Nama Jalan
-              </th>
-
-
-
-              <th
-                className="
-                  px-5
-                  py-3
-                  text-left
-                  font-medium
-                "
-              >
-                Start (Lat, Long)
-              </th>
-
-
-
-              <th
-                className="
-                  px-5
-                  py-3
-                  text-left
-                  font-medium
-                "
-              >
-                End (Lat, Long)
-              </th>
-
-
-
-              <th
-                className="
-                  px-5
-                  py-3
-                  text-right
-                  font-medium
-                "
-              >
-                Panjang Kabel (m)
-              </th>
-
-
-            </tr>
-
-
-          </thead>
-
-
-
-
-          <tbody
-            className="
-              text-white/80
-            "
-          >
-
-
-            {data.lines.length === 0 ? (
-
-              <tr
-                className="
-                  border-t
-                  border-white/10
-                "
-              >
-
-                <td
-                  colSpan={6}
-                  className="
-                    px-5
-                    py-6
-                    text-center
-                    text-white/40
-                  "
-                >
-                  No permit data
-                </td>
-
-
+      <div className="overflow-x-auto rounded-[2rem] bg-[#dedfe1] p-3 shadow-[10px_10px_20px_#bfc0c3,-10px_-10px_20px_#f7f7f8] sm:p-4">
+        <div className="min-w-[900px] overflow-hidden rounded-[1.5rem] bg-[#dedfe1] shadow-[inset_5px_5px_10px_#bfc0c3,inset_-5px_-5px_10px_#f7f7f8]">
+          <table className="w-full text-sm">
+            <thead className="text-[#68696d]">
+              <tr>
+                <th className="px-5 py-4 text-left font-semibold">No</th>
+                <th className="px-5 py-4 text-left font-semibold">
+                  Nama Site
+                </th>
+                <th className="px-5 py-4 text-left font-semibold">
+                  Nama Jalan
+                </th>
+                <th className="px-5 py-4 text-left font-semibold">
+                  Start (Lat, Long)
+                </th>
+                <th className="px-5 py-4 text-left font-semibold">
+                  End (Lat, Long)
+                </th>
+                <th className="px-5 py-4 text-right font-semibold">
+                  Panjang Kabel (m)
+                </th>
               </tr>
+            </thead>
 
-
-            ) : (
-
-
-              data.lines.map(
-                (line,index) => (
-
+            <tbody className="text-[#4f5054]">
+              {data.lines.length === 0 ? (
+                <tr className="border-t border-[#c8c9cc]">
+                  <td
+                    colSpan={6}
+                    className="px-5 py-10 text-center text-sm text-[#a4a5a8]"
+                  >
+                    No permit data
+                  </td>
+                </tr>
+              ) : (
+                data.lines.map((line, index) => (
                   <tr
                     key={`${line.no}-${index}`}
-                    className="
-                      border-t
-                      border-white/10
-                      hover:bg-white/5
-                      transition
-                    "
+                    className="border-t border-[#c8c9cc] transition-colors hover:bg-[#d8d9db]"
                   >
-
-
-                    <td
-                      className="
-                        px-5
-                        py-3
-                        text-left
-                      "
-                    >
-                      {line.no}
-                    </td>
-
-
-
-                    <td
-                      className="
-                        px-5
-                        py-3
-                        text-left
-                      "
-                    >
-                      {line.site}
-                    </td>
-
-
-
-                    <td
-                      className="
-                        px-5
-                        py-3
-                        text-left
-                      "
-                    >
-                      {line.jalan}
-                    </td>
-
-
-
-                    <td
-                      className="
-                        px-5
-                        py-3
-                        text-left
-                      "
-                    >
+                    <td className="px-5 py-4 text-left">{line.no}</td>
+                    <td className="px-5 py-4 text-left">{line.site}</td>
+                    <td className="px-5 py-4 text-left">{line.jalan}</td>
+                    <td className="whitespace-nowrap px-5 py-4 text-left">
                       {line.start}
                     </td>
-
-
-
-                    <td
-                      className="
-                        px-5
-                        py-3
-                        text-left
-                      "
-                    >
+                    <td className="whitespace-nowrap px-5 py-4 text-left">
                       {line.end}
                     </td>
-
-
-
-                    <td
-                      className="
-                        px-5
-                        py-3
-                        text-right
-                      "
-                    >
+                    <td className="px-5 py-4 text-right font-medium">
                       {line.length} m
                     </td>
-
-
-
                   </tr>
-
-                )
-              )
-
-
-            )}
-
-
-          </tbody>
-
-
-        </table>
-
-
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
-
-
-    </div>
-
+    </section>
   );
-
 }

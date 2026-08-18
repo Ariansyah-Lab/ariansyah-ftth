@@ -10,47 +10,19 @@ export default function ActionButtons({
   onClear,
 }: Props) {
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <button
+        type="button"
         onClick={onProcess}
-        className="
-          h-14
-          rounded-xl
-          bg-white/10
-          border
-          border-white/15
-          text-white
-          font-medium
-          transition-all
-          duration-200
-          hover:bg-white/15
-          hover:border-white/20
-          hover:scale-[1.02]
-          active:scale-100
-          cursor-pointer
-        "
+        className="h-14 cursor-pointer rounded-2xl bg-[#dedfe1] font-medium text-[#3f4043] shadow-[7px_7px_14px_#bfc0c3,-7px_-7px_14px_#f7f7f8] transition duration-200 hover:-translate-y-0.5 hover:text-[#242529] active:translate-y-0 active:shadow-[inset_4px_4px_8px_#bfc0c3,inset_-4px_-4px_8px_#f7f7f8]"
       >
         Process
       </button>
 
       <button
+        type="button"
         onClick={onClear}
-        className="
-          h-14
-          rounded-xl
-          bg-white/10
-          border
-          border-white/15
-          text-white
-          font-medium
-          transition-all
-          duration-200
-          hover:bg-red-500/20
-          hover:border-red-500/30
-          hover:scale-[1.02]
-          active:scale-100
-          cursor-pointer
-        "
+        className="h-14 cursor-pointer rounded-2xl bg-[#dedfe1] font-medium text-[#77787c] shadow-[7px_7px_14px_#bfc0c3,-7px_-7px_14px_#f7f7f8] transition duration-200 hover:-translate-y-0.5 hover:text-[#3f4043] active:translate-y-0 active:shadow-[inset_4px_4px_8px_#bfc0c3,inset_-4px_-4px_8px_#f7f7f8]"
       >
         Clear Data
       </button>

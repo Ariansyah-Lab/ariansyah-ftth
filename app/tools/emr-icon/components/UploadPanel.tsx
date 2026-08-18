@@ -1,7 +1,11 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
-import type { ChangeEvent, DragEvent } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import type {
+  ChangeEvent,
+  DragEvent,
+  MutableRefObject,
+} from "react";
 
 import JSZip from "jszip";
 import { UploadCloud } from "lucide-react";
@@ -11,24 +15,24 @@ type Props = {
     xml: string,
     fileName: string,
     fileType: "kml" | "kmz",
-    zip?: JSZip
+    zip?: JSZip,
   ) => void;
-  clearRef: React.MutableRefObject<(() => void) | null>;
+  clearRef: MutableRefObject<(() => void) | null>;
 };
 
-export default function UploadPanel({
-  onUpload,
-  clearRef,
-}: Props) {
+export default function UploadPanel({ onUpload, clearRef }: Props) {
   const [uploadedFile, setUploadedFile] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     clearRef.current = () => {
       setUploadedFile("");
+
+      if (inputRef.current) {
+        inputRef.current.value = "";
+      }
     };
 
-    // Cleanup ref saat komponen unmount (opsional, tapi lebih bersih)
     return () => {
       clearRef.current = null;
     };
@@ -37,9 +41,14 @@ export default function UploadPanel({
   const processFile = useCallback(
     async (file: File) => {
       const fileName = file.name;
-      setUploadedFile(fileName);
-
       const extension = fileName.split(".").pop()?.toLowerCase();
+
+      if (extension !== "kml" && extension !== "kmz") {
+        alert("Upload file KML atau KMZ.");
+        return;
+      }
+
+      setUploadedFile(fileName);
 
       if (extension === "kml") {
         const xml = await file.text();
@@ -47,95 +56,74 @@ export default function UploadPanel({
         return;
       }
 
-      if (extension === "kmz") {
-        const zip = await JSZip.loadAsync(file);
+      const zip = await JSZip.loadAsync(file);
+      const kmlName = Object.keys(zip.files).find((name) =>
+        name.toLowerCase().endsWith(".kml"),
+      );
 
-        const kmlName = Object.keys(zip.files).find((name) =>
-          name.toLowerCase().endsWith(".kml")
-        );
-
-        if (!kmlName) {
-          alert("KMZ tidak memiliki file KML.");
-          return;
-        }
-
-        const kmlFile = zip.file(kmlName);
-
-        if (!kmlFile) {
-          alert("File KML tidak ditemukan.");
-          return;
-        }
-
-        const xml = await kmlFile.async("text");
-
-        onUpload(xml, fileName, "kmz", zip);
+      if (!kmlName) {
+        alert("KMZ tidak memiliki file KML.");
+        setUploadedFile("");
         return;
       }
 
-      alert("Upload file KML atau KMZ.");
+      const kmlFile = zip.file(kmlName);
+
+      if (!kmlFile) {
+        alert("File KML tidak ditemukan.");
+        setUploadedFile("");
+        return;
+      }
+
+      const xml = await kmlFile.async("text");
+      onUpload(xml, fileName, "kmz", zip);
     },
-    [onUpload]
+    [onUpload],
   );
 
-  async function handleUpload(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
+  async function handleUpload(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+
     if (!file) return;
 
     await processFile(file);
-    e.target.value = "";
+    event.target.value = "";
   }
 
-  async function handleDrop(e: DragEvent<HTMLLabelElement>) {
-    e.preventDefault();
-    e.stopPropagation();
+  async function handleDrop(event: DragEvent<HTMLLabelElement>) {
+    event.preventDefault();
+    event.stopPropagation();
 
-    const file = e.dataTransfer.files?.[0];
+    const file = event.dataTransfer.files?.[0];
+
     if (!file) return;
 
     await processFile(file);
   }
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/4 backdrop-blur-xl p-5 shadow-lg">
+    <div className="rounded-[2rem] bg-[#dedfe1] p-5 shadow-[10px_10px_20px_#bfc0c3,-10px_-10px_20px_#f7f7f8]">
       <label
-        onDragOver={(e) => e.preventDefault()}
+        onDragOver={(event) => event.preventDefault()}
         onDrop={handleDrop}
-        className="
-          min-h-56
-          rounded-xl
-          border
-          border-dashed
-          border-white/15
-          flex
-          flex-col
-          items-center
-          justify-center
-          gap-5
-          cursor-pointer
-          transition-all
-          duration-300
-          hover:border-white/25
-          hover:bg-white/3
-        "
+        className="flex min-h-64 cursor-pointer flex-col items-center justify-center gap-5 rounded-[1.5rem] bg-[#dedfe1] p-6 text-center shadow-[inset_6px_6px_12px_#bfc0c3,inset_-6px_-6px_12px_#f7f7f8] transition duration-300 hover:text-[#303135]"
       >
-        <UploadCloud
-          size={52}
-          strokeWidth={1.8}
-          className="text-white/70"
-        />
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#dedfe1] text-[#77787c] shadow-[5px_5px_10px_#bfc0c3,-5px_-5px_10px_#f7f7f8]">
+          <UploadCloud size={32} strokeWidth={1.7} />
+        </div>
 
-        <div className="text-center">
-          <h2 className="text-xl font-semibold text-white">
+        <div>
+          <h2 className="text-lg font-semibold text-[#3f4043]">
             Upload KMZ / KML
           </h2>
 
           {uploadedFile ? (
-            <p className="mt-2 text-sm text-green-400">
+            <p className="mt-2 max-w-[240px] truncate text-sm text-[#68696d]">
               ✓ {uploadedFile}
             </p>
           ) : (
-            <p className="mt-2 text-sm text-white/50">
-              Drag & Drop atau klik untuk upload
+            <p className="mt-2 text-sm text-[#77787c]">
+              Drag &amp; drop atau klik untuk upload
             </p>
           )}
         </div>

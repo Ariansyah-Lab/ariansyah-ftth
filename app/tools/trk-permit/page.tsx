@@ -15,34 +15,26 @@ const emptyData: CableResult = {
 };
 
 export default function Home() {
-  const [data, setData] = useState(emptyData);
+  const [data, setData] = useState<CableResult>(emptyData);
 
   function clearData() {
     setData(emptyData);
   }
 
   return (
-    <>
+    <main className="min-h-screen bg-[#dedfe1] text-[#3f4043]">
       <Header />
 
-      <div className="flex">
+      <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-6 px-5 pb-16 pt-6 sm:px-8 lg:flex-row lg:items-start lg:px-12">
         <Sidebar
           setData={setData}
           clearData={clearData}
         />
 
-        <section
-          className="
-            flex-1
-            p-6
-            space-y-6
-          "
-        >
-          <PermitTable
-            data={data}
-          />
+        <section className="min-w-0 flex-1 space-y-6">
+          <PermitTable data={data} />
         </section>
       </div>
-    </>
+    </main>
   );
 }

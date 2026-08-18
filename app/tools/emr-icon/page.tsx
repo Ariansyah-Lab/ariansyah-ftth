@@ -22,7 +22,7 @@ export default function Home() {
     text: string,
     name: string,
     type: "kml" | "kmz",
-    zipFile?: JSZip
+    zipFile?: JSZip,
   ) {
     setXml(text);
     setFileName(name);
@@ -42,7 +42,7 @@ export default function Home() {
       result,
       fileName.replace(/\.(kml|kmz)$/i, ""),
       fileType,
-      zip ?? undefined
+      zip ?? undefined,
     );
   }
 
@@ -51,16 +51,15 @@ export default function Home() {
     setFileName("");
     setFileType("kml");
     setZip(null);
-
     uploadClearRef.current?.();
   }
 
   return (
-    <>
+    <main className="min-h-screen bg-[#dedfe1] text-[#3f4043]">
       <Header />
 
-      <main className="flex justify-center px-6 py-8">
-        <div className="w-full max-w-2xl space-y-6">
+      <section className="mx-auto w-full max-w-[1600px] px-5 pb-16 pt-6 sm:px-8 lg:px-12">
+        <div className="mx-auto max-w-3xl space-y-6">
           <UploadPanel
             onUpload={handleUpload}
             clearRef={uploadClearRef}
@@ -71,7 +70,7 @@ export default function Home() {
             onClear={handleClear}
           />
         </div>
-      </main>
-    </>
+      </section>
+    </main>
   );
 }
