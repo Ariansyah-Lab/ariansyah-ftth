@@ -22,10 +22,10 @@ export default function Header() {
 
           <div>
             <h1 className="text-xl font-semibold tracking-[-0.04em] text-[#303135] sm:text-2xl">
-              FTTH Point Editor
+              Placemark Counter
             </h1>
             <p className="mt-0.5 text-xs text-[#77787c] sm:text-sm">
-              Ariansyah-Lab / Spatial Utility
+              Ariansyah-Lab / Folder Analysis
             </p>
           </div>
         </div>

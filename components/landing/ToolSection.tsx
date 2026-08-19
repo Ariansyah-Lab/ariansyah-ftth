@@ -32,17 +32,24 @@ const tools = [
   },
   {
     title: "FTTH Point Editor",
-    description: "Rename, reorder, and export FTTH point data.",
+    description: "Rename and organize FTTH points from KML/KMZ data.",
     icon: "🗺️",
     category: "Spatial Utility",
     href: "/tools/ftth-point-editor",
   },
   {
     title: "FTTH Cable Snapper",
-    description: "Snap cable vertices to nearby poles and export corrected KMZ.",
-    icon: "🧲",
+    description: "Snap cable vertices to nearby pole coordinates.",
+    icon: "📐",
     category: "Spatial Utility",
     href: "/tools/ftth-cable-snapper",
+  },
+  {
+    title: "Placemark Counter",
+    description: "Count Placemark and LineString data inside folder structures.",
+    icon: "📊",
+    category: "Folder Analysis",
+    href: "/tools/placemark-counter",
   },
 ];
 
@@ -75,7 +82,7 @@ export default function ToolSection() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
           {tools.map((tool, index) => (
             <ToolCard
               key={tool.title}

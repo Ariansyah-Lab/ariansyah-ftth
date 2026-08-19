@@ -5,9 +5,10 @@ import SnapWorkspace from "@/app/tools/ftth-cable-snapper/components/SnapWorkspa
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[#dedfe1] px-5 pb-12 pt-4 text-[#3f4043] sm:px-8 lg:px-12">
-      <div className="mx-auto w-full max-w-[1400px]">
-        <Header />
+    <main className="min-h-screen bg-[#dedfe1] text-[#3f4043]">
+      <Header />
+
+      <div className="mx-auto w-full max-w-[1600px] px-5 pb-12 sm:px-8 lg:px-12">
         <SnapWorkspace />
       </div>
     </main>

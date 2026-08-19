@@ -827,7 +827,7 @@ export default function SnapWorkspace() {
         : Info;
 
   return (
-    <section className="mt-4 grid gap-6 lg:grid-cols-[330px_minmax(0,1fr)] lg:items-stretch">
+    <section className="mt-4 grid gap-6 lg:grid-cols-[300px_minmax(0,1fr)] lg:items-stretch">
       <div className="space-y-5">
         <div
           role="button"

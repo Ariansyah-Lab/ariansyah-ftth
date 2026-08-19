@@ -1,48 +1,72 @@
 @import "tailwindcss";
 
 :root {
-  /* Base */
-  --bg: #09090B;
-  --bg-secondary: #18181B;
-
-  /* Glass */
-  --glass: rgba(255,255,255,0.05);
-  --glass-hover: rgba(255,255,255,0.08);
-
-  /* Border */
-  --border: rgba(221, 42, 42, 0.1);
-  --border-hover: rgba(255,255,255,0.20);
-
-  /* Text */
-  --text: #ffffff;
-  --text-secondary: rgba(255,255,255,0.60);
+  --background: #dedfe1;
+  --foreground: #3f4043;
+  --shadow-dark: #bfc0c3;
+  --shadow-light: #f7f7f8;
 }
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
 html {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
   scroll-behavior: smooth;
 }
 
 body {
+  width: 100%;
+  max-width: 100%;
   min-height: 100vh;
   margin: 0;
-
-  color: var(--text);
+  overflow-x: hidden;
+  background: #dedfe1;
+  color: #3f4043;
   font-family: "Poppins", sans-serif;
-
-  background: #09090B;
 }
 
-/* Scrollbar */
+body > div {
+  width: 100%;
+  max-width: 100vw;
+  min-width: 0;
+  overflow-x: clip;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
 
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #dedfe1;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--border);
   border-radius: 999px;
+  background: #bfc0c3;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a9aaad;
 }

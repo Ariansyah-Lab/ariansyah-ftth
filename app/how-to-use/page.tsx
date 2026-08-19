@@ -69,11 +69,24 @@ const guides = [
     description: "Snap cable vertices to nearby poles, add missing vertices along cable segments, and export a corrected KMZ.",
     steps: [
       "Upload or drag a KML/KMZ file containing a folder named POLE and cable LineString data outside that folder.",
-      "Set the snapping threshold, choose the pole offset distance, and enable or disable the perpendicular offset.",
-      "Press Process snapping to update the cable coordinates and review the original and processed visualization.",
-      "Press Download KMZ to export the corrected file while preserving the original KML structure, styles, folders, and names.",
+      "Set the Snap Radius. Vertices without a nearby pole are removed, while nearby poles without a cable vertex receive a new vertex.",
+      "Press Process to update the cable coordinates and review the original and processed visualization.",
+      "Press Download to export the corrected file while preserving the original KML structure, styles, folders, and names.",
     ],
     href: "/tools/ftth-cable-snapper",
+  },
+  {
+    number: "07",
+    title: "Placemark Counter",
+    category: "Folder Analysis",
+    description: "Count Placemark and LineString data inside a flexible folder structure.",
+    steps: [
+      "Upload or drag and drop a KML or KMZ file. The file is processed automatically without a Process button.",
+      "Review the columns Site, Kategori, Sub Kategori, Item, and Qty. Empty folders are not displayed.",
+      "Use the filter on each column or Search to narrow the table. Total automatically shows the sum of Qty from the filtered rows.",
+      "Select Export CSV to download the currently filtered results.",
+    ],
+    href: "/tools/placemark-counter",
   },
 ];
 
