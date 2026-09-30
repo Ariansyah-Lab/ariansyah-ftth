@@ -83,10 +83,12 @@ function hasPoleFolderAncestor(placemark: Element) {
   let parent = placemark.parentElement;
 
   while (parent) {
-    if (
-      parent.localName === "Folder" &&
-      getFolderName(parent).toUpperCase() === "POLE"
-    ) {
+    const folderName = getFolderName(parent).toUpperCase();
+    const isFolder = parent.localName.toLowerCase() === "folder";
+    const isPoleOrTiangFolder =
+      folderName.includes("POLE") || folderName.includes("TIANG");
+
+    if (isFolder && isPoleOrTiangFolder) {
       return true;
     }
 
