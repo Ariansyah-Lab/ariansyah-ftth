@@ -88,6 +88,20 @@ const guides = [
     ],
     href: "/tools/placemark-counter",
   },
+  {
+    number: "08",
+    title: "HPDB Converter",
+    category: "FTTH Excel",
+    description: "Convert KMZ coverage data into a structured HPDB Excel workbook with Datasheet and FDT sheets.",
+    steps: [
+      "Upload or drag a KMZ coverage file into the Upload KMZ panel.",
+      "Fill in Region, OLT, Cluster ID, OLT Code, and Cluster Name under Project Metadata.",
+      "Review the map preview and wait for the location information and FDT Detection results to appear.",
+      "If more than one FDT is detected, choose the correct placemark for each FDT from the FDT Detection panel.",
+      "Press Process to generate the HPDB workbook, then download the completed Excel file.",
+    ],
+    href: "/tools/hpdb",
+  },
 ];
 
 export default function HowToUsePage() {

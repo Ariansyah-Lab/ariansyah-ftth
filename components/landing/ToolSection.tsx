@@ -51,6 +51,13 @@ const tools = [
     category: "Folder Analysis",
     href: "/tools/placemark-counter",
   },
+  {
+    title: "HPDB Converter",
+    description: "Convert KMZ coverage data into a structured HPDB Excel workbook with Datasheet and FDT sheets.",
+    icon: "📁",
+    category: "FTTH Excel",
+    href: "/tools/hpdb",
+  },
 ];
 
 export default function ToolSection() {
