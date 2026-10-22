@@ -11,11 +11,7 @@ import {
 import JSZip from "jszip";
 import "leaflet/dist/leaflet.css";
 import {
-  AlertCircle,
-  CheckCircle2,
   Download,
-  FileArchive,
-  Info,
   MapPinned,
   RotateCcw,
   UploadCloud,
@@ -233,26 +229,6 @@ async function readKmz(file: File): Promise<Feature[]> {
   return result;
 }
 
-function LocationRow({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
-  return (
-    <div>
-      <p className="text-[9px] font-semibold text-[#77787c]">
-        {label}
-      </p>
-
-      <p className="mt-0.5 min-h-5 rounded-lg bg-[#dedfe1] px-2 py-1 text-[10px] font-medium text-[#3f4043] shadow-[inset_2px_2px_5px_#c4c5c8,inset_-2px_-2px_5px_#f5f5f6]">
-        {value || "-"}
-      </p>
-    </div>
-  );
-}
-
 function Field({
   label,
   placeholder,
@@ -282,9 +258,9 @@ function Field({
 
 function KmzMap({ features }: { features: Feature[] }) {
   const mapElement = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<any>(null);
-  const layerRef = useRef<any>(null);
-  const leafletRef = useRef<any>(null);
+  const mapRef = useRef<import("leaflet").Map | null>(null);
+  const layerRef = useRef<import("leaflet").LayerGroup | null>(null);
+  const leafletRef = useRef<typeof import("leaflet") | null>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -456,7 +432,7 @@ export default function HPDBWorkspace() {
     road: "",
   });
 
-  const [status, setStatus] = useState({
+  const [, setStatus] = useState({
     type: "info" as StatusType,
     text: "Upload file KMZ untuk memulai.",
   });
