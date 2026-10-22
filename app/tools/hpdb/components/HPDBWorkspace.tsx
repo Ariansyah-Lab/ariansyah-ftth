@@ -803,7 +803,7 @@ export default function HPDBWorkspace() {
         JSON.stringify(legacyFdtMapping),
       );
 
-      const response = await fetch("/api/hpdb/process", {
+      const response = await fetch("/api/hpdb_process", {
         method: "POST",
         body: formData,
       });
