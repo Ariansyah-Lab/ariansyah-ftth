@@ -28,6 +28,7 @@ def parse_json_field(value: str | None, field_name: str):
 
 
 @app.post("/")
+@app.post("/api/hpdb_process")
 async def process_hpdb(
     kmz: UploadFile = File(...),
     region: str = Form(""),
