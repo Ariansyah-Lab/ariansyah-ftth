@@ -315,6 +315,7 @@ def populate_fdt_sheets(wb, features, rows, manual):
             district = str(
                 location_address.get("district")
                 or location_address.get("city_district")
+                or location_address.get("municipality")
                 or location_address.get("town")
                 or ""
             ).upper()
