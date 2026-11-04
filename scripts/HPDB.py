@@ -240,11 +240,11 @@ def populate_fdt_sheets(wb, features, rows, manual):
         white_fill = PatternFill(fill_type="solid", fgColor="FFFFFF")
         top_band_fill = PatternFill(fill_type="solid", fgColor="00B0F0")
         sequence_fills = {
-            1: PatternFill(fill_type="solid", fgColor="0000FF"),
-            2: PatternFill(fill_type="solid", fgColor="FFA500"),
+            1: PatternFill(fill_type="solid", fgColor="0066CC"),
+            2: PatternFill(fill_type="solid", fgColor="FFC000"),
             3: PatternFill(fill_type="solid", fgColor="00B050"),
-            4: PatternFill(fill_type="solid", fgColor="A52A2A"),
-            5: PatternFill(fill_type="solid", fgColor="A6A6A6"),
+            4: PatternFill(fill_type="solid", fgColor="C65911"),
+            5: PatternFill(fill_type="solid", fgColor="7F7F7F"),
             6: PatternFill(fill_type="solid", fgColor="FFFFFF"),
         }
         for offset, item in enumerate(items, start=9):
@@ -286,18 +286,13 @@ def populate_fdt_sheets(wb, features, rows, manual):
                 sheet.cell(offset, 1).fill = white_fill
                 sheet.cell(offset, 7).value = None
             sheet.cell(offset, 8).value = fat_pos
-            row_ref = offset
-            # Homenumber/placemark names can repeat in different FAT folders.
-            # FAT Code is the reliable discriminator. The Line cell is only
-            # populated on the first row of a FAT block, so it must not be
-            # included in the lookup key for continuation rows.
-            lookup_match = (
-                f'MATCH(1,INDEX((Datasheet!$D:$D=AK{row_ref})*'
-                f'(Datasheet!$H:$H=AV{row_ref}),0),0)'
-            )
-            sheet.cell(offset, 9).value = f'=IFERROR(INDEX(Datasheet!$A:$A,{lookup_match}),"")'
-            sheet.cell(offset, 10).value = f'=IFERROR(INDEX(Datasheet!$B:$B,{lookup_match}),"")'
-            sheet.cell(offset, 11).value = f'=IFERROR(INDEX(Datasheet!$C:$C,{lookup_match}),"")'
+            # Write resolved values directly instead of Excel formulas. This
+            # keeps the exported workbook light and avoids recalculation when
+            # the user opens it. The pole was already resolved in `rows`.
+            pole = item.get("pole")
+            sheet.cell(offset, 9).value = pole.name if pole else ""
+            sheet.cell(offset, 10).value = pole.point[1] if pole else ""
+            sheet.cell(offset, 11).value = pole.point[0] if pole else ""
             street = extract_street(item["fat"], manual.get("cluster_name", "")) if item["fat"] else ""
             sheet.cell(offset, 12).value = street
             location = manual.get("location") or {}
@@ -368,8 +363,8 @@ def populate_fdt_sheets(wb, features, rows, manual):
             # AV / FATCODE uses the same short code as column G.
             sheet.cell(offset, 48).value = short_fat_code
             sheet.cell(offset, 49).value = "-"
-            sheet.cell(offset, 50).value = f'=IFERROR(INDEX(Datasheet!$E:$E,{lookup_match}),"")'
-            sheet.cell(offset, 51).value = f'=IFERROR(INDEX(Datasheet!$F:$F,{lookup_match}),"")'
+            sheet.cell(offset, 50).value = hp.point[1]
+            sheet.cell(offset, 51).value = hp.point[0]
             sheet.cell(offset, 50).number_format = "0.000000"
             sheet.cell(offset, 51).number_format = "0.000000"
             # Highlight only the first row of each FAT block from H through BK.
@@ -381,7 +376,22 @@ def populate_fdt_sheets(wb, features, rows, manual):
                     else white_fill
                 )
                 if col <= 52:
-                    sheet.cell(offset, col).border = copy.copy(sheet.cell(9, col).border)
+                    border = copy.copy(sheet.cell(9, col).border)
+                    if offset == current_start and col == 6:
+                        border = Border(
+                            left=border.left,
+                            right=border.right,
+                            top=Side(style="thin"),
+                            bottom=border.bottom,
+                            diagonal=border.diagonal,
+                            diagonal_direction=border.diagonal_direction,
+                            diagonalUp=border.diagonalUp,
+                            diagonalDown=border.diagonalDown,
+                            outline=border.outline,
+                            vertical=border.vertical,
+                            horizontal=border.horizontal,
+                        )
+                    sheet.cell(offset, col).border = border
             # Column E uses the requested sequence color independently.
             sequence_value = sheet.cell(offset, 5).value
             try:
