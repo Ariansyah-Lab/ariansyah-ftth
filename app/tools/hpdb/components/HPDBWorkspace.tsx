@@ -552,6 +552,7 @@ export default function HPDBWorkspace() {
 
       const district =
         address.city_district ||
+        address.municipality ||
         address.town ||
         address.district ||
         "";
@@ -803,7 +804,7 @@ export default function HPDBWorkspace() {
         JSON.stringify(legacyFdtMapping),
       );
 
-      const response = await fetch("/api/hpdb_process", {
+      const response = await fetch("/api/hpdb/process", {
         method: "POST",
         body: formData,
       });
