@@ -240,12 +240,12 @@ def populate_fdt_sheets(wb, features, rows, manual):
         white_fill = PatternFill(fill_type="solid", fgColor="FFFFFF")
         top_band_fill = PatternFill(fill_type="solid", fgColor="00B0F0")
         sequence_fills = {
-            11: PatternFill(fill_type="solid", fgColor="0000FF"),
-            22: PatternFill(fill_type="solid", fgColor="FFA500"),
-            33: PatternFill(fill_type="solid", fgColor="00B050"),
-            44: PatternFill(fill_type="solid", fgColor="A52A2A"),
-            55: PatternFill(fill_type="solid", fgColor="A6A6A6"),
-            66: PatternFill(fill_type="solid", fgColor="FFFFFF"),
+            1: PatternFill(fill_type="solid", fgColor="0000FF"),
+            2: PatternFill(fill_type="solid", fgColor="FFA500"),
+            3: PatternFill(fill_type="solid", fgColor="00B050"),
+            4: PatternFill(fill_type="solid", fgColor="A52A2A"),
+            5: PatternFill(fill_type="solid", fgColor="A6A6A6"),
+            6: PatternFill(fill_type="solid", fgColor="FFFFFF"),
         }
         for offset, item in enumerate(items, start=9):
             if offset > 9:
