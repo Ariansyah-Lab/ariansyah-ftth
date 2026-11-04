@@ -279,50 +279,24 @@ def populate_fdt_sheets(wb, features, rows, manual):
                 sheet.cell(offset, 7).value = None
             sheet.cell(offset, 8).value = fat_pos
             row_ref = offset
-            sheet.cell(offset, 9).value = f'=IFERROR(INDEX(Datasheet!$A:$A,MATCH(AK{row_ref},Datasheet!$D:$D,0)),"")'
-            sheet.cell(offset, 10).value = f'=IFERROR(INDEX(Datasheet!$B:$B,MATCH(AK{row_ref},Datasheet!$D:$D,0)),"")'
-            sheet.cell(offset, 11).value = f'=IFERROR(INDEX(Datasheet!$C:$C,MATCH(AK{row_ref},Datasheet!$D:$D,0)),"")'
+            # Homenumber/placemark names can repeat in different FAT folders.
+            # Match the complete Datasheet key: Homenumber + FAT Code + Line.
+            lookup_match = (
+                f'MATCH(1,INDEX((Datasheet!$D:$D=AK{row_ref})*'
+                f'(Datasheet!$H:$H=AV{row_ref})*'
+                f'(Datasheet!$I:$I=$C{row_ref}),0),0)'
+            )
+            sheet.cell(offset, 9).value = f'=IFERROR(INDEX(Datasheet!$A:$A,{lookup_match}),"")'
+            sheet.cell(offset, 10).value = f'=IFERROR(INDEX(Datasheet!$B:$B,{lookup_match}),"")'
+            sheet.cell(offset, 11).value = f'=IFERROR(INDEX(Datasheet!$C:$C,{lookup_match}),"")'
             street = extract_street(item["fat"], manual.get("cluster_name", "")) if item["fat"] else ""
             sheet.cell(offset, 12).value = street
-            location_data = manual.get("location") or {}
-            # The Next.js form sends flat fields, while the OSM response uses
-            # an address object. Accept both formats so M-Q is never blank
-            # merely because the payload shape changed.
-            location_address = location_data.get("address") or location_data
-            province = str(
-                location_data.get("province")
-                or location_address.get("province")
-                or location_address.get("state")
-                or ""
-            ).upper()
-            regency_city = str(
-                location_data.get("regency")
-                or location_data.get("regency_city")
-                or location_address.get("city")
-                or location_address.get("county")
-                or location_address.get("municipality")
-                or location_address.get("region")
-                or ""
-            ).upper()
-            district = str(
-                location_data.get("district")
-                or location_address.get("city_district")
-                or location_address.get("town")
-                or ""
-            ).upper()
-            subdistrict = str(
-                location_data.get("village")
-                or location_data.get("subdistrict")
-                or location_address.get("village")
-                or location_address.get("suburb")
-                or ""
-            ).upper()
-            postalcode = str(
-                location_data.get("postcode")
-                or location_data.get("postalcode")
-                or location_address.get("postcode")
-                or ""
-            ).upper()
+            location_address = manual.get("location", {}).get("address", {})
+            province = str(location_address.get("province") or location_address.get("state") or "").upper()
+            regency_city = str(location_address.get("city") or location_address.get("county") or location_address.get("municipality") or location_address.get("region") or "").upper()
+            district = str(location_address.get("city_district") or location_address.get("town") or "").upper()
+            subdistrict = str(location_address.get("village") or location_address.get("suburb") or "").upper()
+            postalcode = str(location_address.get("postcode") or "").upper()
             sheet.cell(offset, 13).value = province
             sheet.cell(offset, 14).value = regency_city
             sheet.cell(offset, 15).value = district
@@ -341,9 +315,7 @@ def populate_fdt_sheets(wb, features, rows, manual):
             sheet.cell(offset, 28).value = "-"
             sheet.cell(offset, 29).value = "-"
             sheet.cell(offset, 30).value = "JALAN"
-            # AE / FAT address must use the same street value as the Street
-            # table, including the Cluster Name fallback.
-            sheet.cell(offset, 31).value = street
+            sheet.cell(offset, 31).value = ""
             sheet.cell(offset, 36).value = "-"
             sheet.cell(offset, 37).value = hp.name
             sheet.cell(offset, 38).value = "Single Dwelling Unit"
@@ -351,13 +323,12 @@ def populate_fdt_sheets(wb, features, rows, manual):
             sheet.cell(offset, 45).value = manual.get("olt_code", "")
             sheet.cell(offset, 46).value = "-"
             sheet.cell(offset, 47).value = selected_name
-            # Lookup values from Datasheet using the HP name in AK, equivalent to VLOOKUP.
-            # AV / FATCODE uses the same short code as column G and is kept
-            # explicit so it never reintroduces the full FAT placemark name.
+            # Lookup coordinates using the same three-part key as columns I-K.
+            # AV / FATCODE uses the same short code as column G.
             sheet.cell(offset, 48).value = short_fat_code
             sheet.cell(offset, 49).value = "-"
-            sheet.cell(offset, 50).value = f'=IFERROR(VLOOKUP(AK{offset},Datasheet!$D:$F,2,FALSE),"")'
-            sheet.cell(offset, 51).value = f'=IFERROR(VLOOKUP(AK{offset},Datasheet!$D:$F,3,FALSE),"")'
+            sheet.cell(offset, 50).value = f'=IFERROR(INDEX(Datasheet!$E:$E,{lookup_match}),"")'
+            sheet.cell(offset, 51).value = f'=IFERROR(INDEX(Datasheet!$F:$F,{lookup_match}),"")'
             sheet.cell(offset, 50).number_format = "0.000000"
             sheet.cell(offset, 51).number_format = "0.000000"
             # Highlight the row where G1/G2 starts; column G stays white.
