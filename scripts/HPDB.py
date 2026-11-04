@@ -280,11 +280,12 @@ def populate_fdt_sheets(wb, features, rows, manual):
             sheet.cell(offset, 8).value = fat_pos
             row_ref = offset
             # Homenumber/placemark names can repeat in different FAT folders.
-            # Match the complete Datasheet key: Homenumber + FAT Code + Line.
+            # FAT Code is the reliable discriminator. The Line cell is only
+            # populated on the first row of a FAT block, so it must not be
+            # included in the lookup key for continuation rows.
             lookup_match = (
                 f'MATCH(1,INDEX((Datasheet!$D:$D=AK{row_ref})*'
-                f'(Datasheet!$H:$H=AV{row_ref})*'
-                f'(Datasheet!$I:$I=$C{row_ref}),0),0)'
+                f'(Datasheet!$H:$H=AV{row_ref}),0),0)'
             )
             sheet.cell(offset, 9).value = f'=IFERROR(INDEX(Datasheet!$A:$A,{lookup_match}),"")'
             sheet.cell(offset, 10).value = f'=IFERROR(INDEX(Datasheet!$B:$B,{lookup_match}),"")'
