@@ -237,8 +237,16 @@ def populate_fdt_sheets(wb, features, rows, manual):
         fat_pos = 0
         filled_index = 0
         pair_index = 0
-        yellow_fill = PatternFill(fill_type="solid", fgColor="FFFF00")
         white_fill = PatternFill(fill_type="solid", fgColor="FFFFFF")
+        top_band_fill = PatternFill(fill_type="solid", fgColor="00B0F0")
+        sequence_fills = {
+            11: PatternFill(fill_type="solid", fgColor="0000FF"),
+            22: PatternFill(fill_type="solid", fgColor="FFA500"),
+            33: PatternFill(fill_type="solid", fgColor="00B050"),
+            44: PatternFill(fill_type="solid", fgColor="A52A2A"),
+            55: PatternFill(fill_type="solid", fgColor="A6A6A6"),
+            66: PatternFill(fill_type="solid", fgColor="FFFFFF"),
+        }
         for offset, item in enumerate(items, start=9):
             if offset > 9:
                 copy_row_style(sheet, 9, offset, 62)
@@ -261,7 +269,7 @@ def populate_fdt_sheets(wb, features, rows, manual):
                 filled_index += 1
                 if offset == current_start:
                     sheet.cell(offset, 1).value = f"G{((filled_index - 1) // 16) + 1}"
-                    sheet.cell(offset, 1).fill = yellow_fill
+                    sheet.cell(offset, 1).fill = white_fill
                 else:
                     sheet.cell(offset, 1).value = None
                     sheet.cell(offset, 1).fill = white_fill
@@ -364,14 +372,24 @@ def populate_fdt_sheets(wb, features, rows, manual):
             sheet.cell(offset, 51).value = f'=IFERROR(INDEX(Datasheet!$F:$F,{lookup_match}),"")'
             sheet.cell(offset, 50).number_format = "0.000000"
             sheet.cell(offset, 51).number_format = "0.000000"
-            # Highlight the row where G1/G2 starts; column G stays white.
-            row_fill = yellow_fill if offset == current_start else white_fill
-            for col in range(1, sheet.max_column + 1):
-                # BK and onward are outside the generated FDT data area and
-                # must never inherit the template's yellow fill.
-                sheet.cell(offset, col).fill = white_fill if col >= 63 or col in (7, 52) else row_fill
+            # Highlight only the first row of each FAT block from H through BK.
+            # All other cells are cleared from the old template fill.
+            for col in range(1, max(sheet.max_column, 63) + 1):
+                sheet.cell(offset, col).fill = (
+                    top_band_fill
+                    if offset == current_start and 8 <= col <= 63
+                    else white_fill
+                )
                 if col <= 52:
                     sheet.cell(offset, col).border = copy.copy(sheet.cell(9, col).border)
+            # Column E uses the requested sequence color independently.
+            sequence_value = sheet.cell(offset, 5).value
+            try:
+                sequence_value = int(sequence_value)
+            except (TypeError, ValueError):
+                sequence_value = None
+            if sequence_value in sequence_fills:
+                sheet.cell(offset, 5).fill = sequence_fills[sequence_value]
         if current_code is not None:
             run_ranges.append((current_start, 8 + len(items), current_code))
         # Remove borders from empty cells from the header row through the data area.
@@ -380,14 +398,14 @@ def populate_fdt_sheets(wb, features, rows, manual):
                 cell = sheet.cell(r, col)
                 if cell.value is None and col != 52:
                     cell.border = Border()
-                if col >= 63:
+                if col >= 64:
                     cell.fill = white_fill
             # AZ is a required bordered column even when its cell is empty.
             sheet.cell(r, 52).border = copy.copy(sheet.cell(9, 52).border)
-        # Clear template fills from BK onward across the complete FDT sheet,
+        # Clear template fills from BL onward across the complete FDT sheet,
         # including header rows above the generated data area.
         for r in range(1, sheet.max_row + 1):
-            for col in range(63, sheet.max_column + 1):
+            for col in range(64, sheet.max_column + 1):
                 sheet.cell(r, col).fill = white_fill
         for run_start, run_end, code in run_ranges:
             # Match the template: only the first two rows of each FAT are merged.
@@ -569,11 +587,11 @@ def generate_excel(kmz_path, template_path, output_path, manual):
         cell = ws.cell(row, 1)
         cell.border = Border(top=cell.border.top, bottom=cell.border.bottom)
 
-    # Highlight the first row yellow across the populated sheet width.
+    # Do not retain the old yellow template highlight.
     max_used_col = start_col + len(grouped) * 4 - 2 if grouped else 8
-    yellow = PatternFill(fill_type="solid", fgColor="FFFF00")
+    no_fill = PatternFill(fill_type="solid", fgColor="FFFFFF")
     for col in range(1, max_used_col + 1):
-        ws.cell(1, col).fill = yellow
+        ws.cell(1, col).fill = no_fill
 
     populate_fdt_sheets(wb, features, rows, manual)
 
