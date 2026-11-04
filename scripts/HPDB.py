@@ -292,12 +292,43 @@ def populate_fdt_sheets(wb, features, rows, manual):
             sheet.cell(offset, 11).value = f'=IFERROR(INDEX(Datasheet!$C:$C,{lookup_match}),"")'
             street = extract_street(item["fat"], manual.get("cluster_name", "")) if item["fat"] else ""
             sheet.cell(offset, 12).value = street
-            location_address = manual.get("location", {}).get("address", {})
-            province = str(location_address.get("province") or location_address.get("state") or "").upper()
-            regency_city = str(location_address.get("city") or location_address.get("county") or location_address.get("municipality") or location_address.get("region") or "").upper()
-            district = str(location_address.get("city_district") or location_address.get("town") or "").upper()
-            subdistrict = str(location_address.get("village") or location_address.get("suburb") or "").upper()
-            postalcode = str(location_address.get("postcode") or "").upper()
+            location = manual.get("location") or {}
+            nested_address = location.get("address") if isinstance(location, dict) else {}
+            nested_address = nested_address if isinstance(nested_address, dict) else {}
+            # The Next.js frontend sends flat fields, while older callers send
+            # an OSM-style {address: {...}} object. Accept both formats.
+            location_address = {**nested_address, **location}
+            province = str(
+                location_address.get("province")
+                or location_address.get("state")
+                or location_address.get("region")
+                or ""
+            ).upper()
+            regency_city = str(
+                location_address.get("regency")
+                or location_address.get("regency_city")
+                or location_address.get("city")
+                or location_address.get("county")
+                or location_address.get("municipality")
+                or ""
+            ).upper()
+            district = str(
+                location_address.get("district")
+                or location_address.get("city_district")
+                or location_address.get("town")
+                or ""
+            ).upper()
+            subdistrict = str(
+                location_address.get("subdistrict")
+                or location_address.get("village")
+                or location_address.get("suburb")
+                or ""
+            ).upper()
+            postalcode = str(
+                location_address.get("postalcode")
+                or location_address.get("postcode")
+                or ""
+            ).upper()
             sheet.cell(offset, 13).value = province
             sheet.cell(offset, 14).value = regency_city
             sheet.cell(offset, 15).value = district
