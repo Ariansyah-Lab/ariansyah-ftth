@@ -377,14 +377,14 @@ function updateDistributionCableDescriptions(
     /*
      * Selalu dibulatkan ke atas.
      */
-    const totalRoute = Math.ceil(
-      distributionPlacemarks.reduce(
-        (total, placemark) =>
-          total +
-          getLineStringLengthInMeters(placemark),
-        0,
-      ),
-    );
+const totalRoute = Math.round(
+  distributionPlacemarks.reduce(
+    (total, placemark) =>
+      total +
+      getLineStringLengthInMeters(placemark),
+    0,
+  ),
+);
 
     const subtotal =
       totalRoute + slackLength;
