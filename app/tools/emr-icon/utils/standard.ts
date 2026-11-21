@@ -8,13 +8,21 @@ export type StyleName =
   | "HOMEPASS_NOT_COVER"
   | "ADSS"
   | "SLING_WIRE"
-  | "SLACK_CABLE";
+  | "SLACK_CABLE"
+  | "BOUNDARY_FAT";
 
 export type FolderRule = {
   style: StyleName;
 };
 
 export const STANDARD: Record<string, FolderRule> = {
+  // =========================
+  // BOUNDARY FAT
+  // =========================
+  "BOUNDARY FAT": {
+    style: "BOUNDARY_FAT",
+  },
+
   // =========================
   // FDT
   // =========================

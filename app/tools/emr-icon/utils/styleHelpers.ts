@@ -1,4 +1,8 @@
-import { StyleDefinition, VariantStyle } from "./styles";
+import {
+  StyleDefinition,
+  VariantStyle,
+} from "./styles";
+
 import { getPlacemarkText } from "./placemarkHelpers";
 
 export function findVariant(
@@ -27,11 +31,16 @@ export function applyPointStyle(
 
   // Untuk icon POLE gunakan nama folder
   const source =
-    style.iconHref?.includes("placemark_circle.png") && folderName
+    style.iconHref?.includes(
+      "placemark_circle.png",
+    ) && folderName
       ? folderName.toUpperCase()
       : text;
 
-  const variant = findVariant(source, style.variants);
+  const variant = findVariant(
+    source,
+    style.variants,
+  );
 
   placemark.querySelector("Style")?.remove();
   placemark.querySelector("styleUrl")?.remove();
@@ -45,13 +54,16 @@ export function applyPointStyle(
 
   if (variant) {
     const iconColor = xml.createElement("color");
-    iconColor.textContent = kmlColor(variant.color);
+    iconColor.textContent = kmlColor(
+      variant.color,
+    );
     iconStyle.appendChild(iconColor);
   }
 
   if (style.scale !== undefined) {
     const iconScale = xml.createElement("scale");
-    iconScale.textContent = style.scale.toString();
+    iconScale.textContent =
+      style.scale.toString();
     iconStyle.appendChild(iconScale);
   }
 
@@ -75,19 +87,25 @@ export function applyPointStyle(
 
   if (variant) {
     const labelColor = xml.createElement("color");
-    labelColor.textContent = kmlColor(variant.color);
+    labelColor.textContent = kmlColor(
+      variant.color,
+    );
     labelStyle.appendChild(labelColor);
   }
 
   if (style.scale !== undefined) {
     const labelScale = xml.createElement("scale");
-    labelScale.textContent = style.scale.toString();
+    labelScale.textContent =
+      style.scale.toString();
     labelStyle.appendChild(labelScale);
   }
 
   styleNode.appendChild(labelStyle);
 
-  placemark.insertBefore(styleNode, placemark.firstChild);
+  placemark.insertBefore(
+    styleNode,
+    placemark.firstChild,
+  );
 }
 
 export function applyLineStyle(
@@ -100,7 +118,10 @@ export function applyLineStyle(
 
   const text = getPlacemarkText(placemark).toUpperCase();
 
-  const variant = findVariant(text, style.variants);
+  const variant = findVariant(
+    text,
+    style.variants,
+  );
 
   placemark.querySelector("Style")?.remove();
   placemark.querySelector("styleUrl")?.remove();
@@ -111,22 +132,108 @@ export function applyLineStyle(
 
   if (variant) {
     const color = xml.createElement("color");
-    color.textContent = kmlColor(variant.color);
+    color.textContent = kmlColor(
+      variant.color,
+    );
     lineStyle.appendChild(color);
   }
 
   if (style.lineWidth !== undefined) {
     const width = xml.createElement("width");
-    width.textContent = style.lineWidth.toString();
+    width.textContent =
+      style.lineWidth.toString();
     lineStyle.appendChild(width);
   }
 
   styleNode.appendChild(lineStyle);
 
-  placemark.insertBefore(styleNode, placemark.firstChild);
+  placemark.insertBefore(
+    styleNode,
+    placemark.firstChild,
+  );
 }
 
-export function kmlColor(hex: string): string {
+export function applyPolygonStyle(
+  placemark: Element,
+  style: StyleDefinition,
+) {
+  const xml = placemark.ownerDocument;
+
+  if (!xml) return;
+
+  placemark.querySelector("Style")?.remove();
+  placemark.querySelector("styleUrl")?.remove();
+
+  const styleNode = xml.createElement("Style");
+
+  // ======================================================
+  // LINE STYLE / OUTLINE
+  // ======================================================
+  const lineStyle = xml.createElement("LineStyle");
+
+  const outlineColor =
+    style.outlineColor ?? "#009999";
+
+  const outlineOpacity =
+    style.outlineOpacity ?? 0.4;
+
+  const lineColor = xml.createElement("color");
+  lineColor.textContent = kmlColor(
+    outlineColor,
+    outlineOpacity,
+  );
+  lineStyle.appendChild(lineColor);
+
+  const lineWidth = xml.createElement("width");
+  lineWidth.textContent = (
+    style.lineWidth ?? 3
+  ).toString();
+  lineStyle.appendChild(lineWidth);
+
+  styleNode.appendChild(lineStyle);
+
+  // ======================================================
+  // POLYGON STYLE / FILL
+  // ======================================================
+  const polyStyle = xml.createElement("PolyStyle");
+
+  const fillColor =
+    style.fillColor ?? "#009999";
+
+  const fillOpacity =
+    style.fillOpacity ?? 0.4;
+
+  const polygonColor = xml.createElement(
+    "color",
+  );
+  polygonColor.textContent = kmlColor(
+    fillColor,
+    fillOpacity,
+  );
+  polyStyle.appendChild(polygonColor);
+
+  const fill = xml.createElement("fill");
+  fill.textContent = "1";
+  polyStyle.appendChild(fill);
+
+  const outline = xml.createElement(
+    "outline",
+  );
+  outline.textContent = "1";
+  polyStyle.appendChild(outline);
+
+  styleNode.appendChild(polyStyle);
+
+  placemark.insertBefore(
+    styleNode,
+    placemark.firstChild,
+  );
+}
+
+export function kmlColor(
+  hex: string,
+  opacity = 1,
+): string {
   const color = hex.replace("#", "");
 
   if (color.length !== 6) {
@@ -137,6 +244,17 @@ export function kmlColor(hex: string): string {
   const g = color.substring(2, 4);
   const b = color.substring(4, 6);
 
+  const safeOpacity = Math.max(
+    0,
+    Math.min(1, opacity),
+  );
+
+  const alpha = Math.round(
+    safeOpacity * 255,
+  )
+    .toString(16)
+    .padStart(2, "0");
+
   // Format warna KML: AABBGGRR
-  return `ff${b}${g}${r}`;
+  return `${alpha}${b}${g}${r}`;
 }

@@ -4,12 +4,17 @@ export type VariantStyle = {
 };
 
 export type StyleDefinition = {
-  type: "point" | "line";
+  type: "point" | "line" | "polygon";
 
   iconHref?: string;
   scale?: number;
 
   lineWidth?: number;
+
+  fillColor?: string;
+  outlineColor?: string;
+  fillOpacity?: number;
+  outlineOpacity?: number;
 
   variants?: VariantStyle[];
 };
@@ -29,101 +34,101 @@ export const STYLES: Record<string, StyleDefinition> = {
     variants: [
       { keywords: ["48C"], color: "#AA00FF" },
       { keywords: ["72C"], color: "#550000" },
-      
       {
         keywords: ["SHARING", "3RD PARTY", "EXT"],
         color: "#FFFFFF",
       },
     ],
   },
-// ======================================================
-// FAT
-// ======================================================
-FAT: {
-  type: "point",
 
-  iconHref:
-    "http://maps.google.com/mapfiles/kml/shapes/triangle.png",
+  // ======================================================
+  // FAT
+  // ======================================================
+  FAT: {
+    type: "point",
 
-  scale: 0.8,
+    iconHref:
+      "http://maps.google.com/mapfiles/kml/shapes/triangle.png",
 
-  variants: [
-    {
-      keywords: [""],
-      color: "#FFFF00",
-    },
-  ],
-},
-// ======================================================
-// NEW POLE
-// ======================================================
-NEW_POLE: {
-  type: "point",
+    scale: 0.8,
 
-  iconHref:
-    "http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png",
+    variants: [
+      {
+        keywords: [""],
+        color: "#FFFF00",
+      },
+    ],
+  },
 
-  scale: 0.8,
+  // ======================================================
+  // NEW POLE
+  // ======================================================
+  NEW_POLE: {
+    type: "point",
 
-  variants: [
-    {
-      keywords: ["7-2.5"],
-      color: "#AA00FF",
-    },
-    {
-      keywords: ["7-3"],
-      color: "#00FFFF",
-    },
-    {
-      keywords: ["7-4"],
-      color: "#00FF00",
-    },
-    {
-      keywords: ["9-4"],
-      color: "#FF0000",
-    },
-  ],
-},
+    iconHref:
+      "http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png",
 
+    scale: 0.8,
 
-// ======================================================
-// POLE EMR
-// ======================================================
-POLE_EMR: {
-  type: "point",
+    variants: [
+      {
+        keywords: ["7-2.5"],
+        color: "#AA00FF",
+      },
+      {
+        keywords: ["7-3"],
+        color: "#00FFFF",
+      },
+      {
+        keywords: ["7-4"],
+        color: "#00FF00",
+      },
+      {
+        keywords: ["9-4"],
+        color: "#FF0000",
+      },
+    ],
+  },
 
-  iconHref:
-    "http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png",
+  // ======================================================
+  // POLE EMR
+  // ======================================================
+  POLE_EMR: {
+    type: "point",
 
-  scale: 0.8,
+    iconHref:
+      "http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png",
 
-  variants: [
-    {
-      keywords: [""],
-      color: "#FFFFFF",
-    },
-  ],
-},
+    scale: 0.8,
 
+    variants: [
+      {
+        keywords: [""],
+        color: "#FFFFFF",
+      },
+    ],
+  },
 
-// ======================================================
-// POLE PARTNER
-// ======================================================
-POLE_PARTNER: {
-  type: "point",
+  // ======================================================
+  // POLE PARTNER
+  // ======================================================
+  POLE_PARTNER: {
+    type: "point",
 
-  iconHref:
-    "http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png",
+    iconHref:
+      "http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png",
 
-  scale: 0.8,
+    scale: 0.8,
 
-  variants: [
-    {
-      keywords: [""],
-      color: "#FFFFFF",
-    },
-  ],
-},
+    variants: [
+      {
+        keywords: [""],
+        color: "#FFFFFF",
+      },
+    ],
+  },
+
   // ======================================================
   // HOMEPASS COVER
   // ======================================================
@@ -135,7 +140,12 @@ POLE_PARTNER: {
 
     scale: 0.8,
 
-    variants: [{ keywords: [""], color: "#00FF00" }],
+    variants: [
+      {
+        keywords: [""],
+        color: "#00FF00",
+      },
+    ],
   },
 
   // ======================================================
@@ -149,7 +159,12 @@ POLE_PARTNER: {
 
     scale: 0.8,
 
-    variants: [{ keywords: [""], color: "#FF0000" }],
+    variants: [
+      {
+        keywords: [""],
+        color: "#FF0000",
+      },
+    ],
   },
 
   // ======================================================
@@ -213,5 +228,21 @@ POLE_PARTNER: {
         color: "#FF0000",
       },
     ],
+  },
+
+  // ======================================================
+  // BOUNDARY FAT
+  // Warna #009999, outline 3, fill dan outline opacity 40%
+  // ======================================================
+  BOUNDARY_FAT: {
+    type: "polygon",
+
+    lineWidth: 3,
+
+    fillColor: "#009999",
+    outlineColor: "#009999",
+
+    fillOpacity: 0.4,
+    outlineOpacity: 0.4,
   },
 };
