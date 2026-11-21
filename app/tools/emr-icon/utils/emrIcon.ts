@@ -33,6 +33,14 @@ function getDirectChildPlacemarks(
   );
 }
 
+function getAllPlacemarksInside(
+  folder: Element,
+): Element[] {
+  return Array.from(
+    folder.getElementsByTagName("Placemark"),
+  );
+}
+
 function getLineAncestor(
   folder: Element,
 ): Element | null {
@@ -122,9 +130,13 @@ function getMainFdtPlacemarks(
         "FDT",
     );
 
+  /*
+   * Membaca semua Placemark di dalam FDT,
+   * termasuk jika Placemark berada di subfolder.
+   */
   return topLevelFdtFolders.flatMap(
     (fdtFolder) =>
-      getDirectChildPlacemarks(fdtFolder),
+      getAllPlacemarksInside(fdtFolder),
   );
 }
 
@@ -212,7 +224,7 @@ function syncSlackHangerWithSources(
 
       /*
        * Semua LINE mengambil Placemark
-       * dari FAT yang berada di LINE masing-masing.
+       * dari folder FAT di LINE masing-masing.
        */
       const fatPlacemarks =
         getFatPlacemarks(lineFolder);
@@ -222,9 +234,8 @@ function syncSlackHangerWithSources(
       ];
 
       /*
-       * Khusus LINE A, tambahkan Placemark
-       * dari folder FDT utama yang berada di
-       * luar folder LINE.
+       * Khusus LINE A, tambahkan semua
+       * Placemark dari FDT utama di luar LINE.
        */
       if (lineName === "LINE A") {
         sourcePlacemarks = [
@@ -258,8 +269,7 @@ function syncSlackHangerWithSources(
       }
 
       /*
-       * Tambahkan Placemark hanya jika
-       * jumlah SLACK HANGER masih kurang.
+       * Hitung jumlah Placemark yang masih kurang.
        */
       const missingCount =
         sourcePlacemarks.length -
@@ -269,6 +279,9 @@ function syncSlackHangerWithSources(
         return;
       }
 
+      /*
+       * Salin Placemark FAT/FDT yang masih kurang.
+       */
       const placemarksToCopy =
         sourcePlacemarks.slice(0, missingCount);
 
