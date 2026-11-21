@@ -15,7 +15,9 @@ function getFolderName(folder: Element): string {
   );
 }
 
-function getDirectChildFolders(folder: Element): Element[] {
+function getDirectChildFolders(
+  folder: Element,
+): Element[] {
   return Array.from(folder.children).filter(
     (child) =>
       child.tagName.toLowerCase() === "folder",
@@ -87,6 +89,45 @@ function getFoldersByName(
   );
 }
 
+function getTopLevelFolders(
+  xml: XMLDocument,
+): Element[] {
+  return Array.from(
+    xml.getElementsByTagName("Folder"),
+  ).filter((folder) => {
+    let parent = folder.parentElement;
+
+    while (parent) {
+      if (
+        parent.tagName.toLowerCase() ===
+        "folder"
+      ) {
+        return false;
+      }
+
+      parent = parent.parentElement;
+    }
+
+    return true;
+  });
+}
+
+function getMainFdtPlacemarks(
+  xml: XMLDocument,
+): Element[] {
+  const topLevelFdtFolders =
+    getTopLevelFolders(xml).filter(
+      (folder) =>
+        getFolderName(folder).toUpperCase() ===
+        "FDT",
+    );
+
+  return topLevelFdtFolders.flatMap(
+    (fdtFolder) =>
+      getDirectChildPlacemarks(fdtFolder),
+  );
+}
+
 function renamePlacemark(
   placemark: Element,
   newName: string,
@@ -124,6 +165,24 @@ function removeDuplicatedIds(
   });
 }
 
+function getFatPlacemarks(
+  lineFolder: Element,
+): Element[] {
+  const fatFolders = getFoldersByName(
+    lineFolder,
+    "FAT",
+  ).filter(
+    (fatFolder) =>
+      getLineAncestor(fatFolder) ===
+      lineFolder,
+  );
+
+  return fatFolders.flatMap(
+    (fatFolder) =>
+      getDirectChildPlacemarks(fatFolder),
+  );
+}
+
 function syncSlackHangerWithSources(
   xml: XMLDocument,
 ) {
@@ -138,45 +197,41 @@ function syncSlackHangerWithSources(
         "SLACK HANGER",
     );
 
+  const mainFdtPlacemarks =
+    getMainFdtPlacemarks(xml);
+
   slackHangerFolders.forEach(
     (slackHangerFolder) => {
       const lineFolder =
         getLineAncestor(slackHangerFolder);
 
-      // Slack Hanger harus berada di dalam LINE.
       if (!lineFolder) return;
 
+      const lineName =
+        getFolderName(lineFolder).toUpperCase();
+
       /*
-       * Sumber Placemark adalah gabungan
-       * folder FAT dan FDT pada LINE yang sama.
+       * Semua LINE mengambil Placemark
+       * dari FAT yang berada di LINE masing-masing.
        */
-      const sourceFolderNames = [
-        "FAT",
-        "FDT",
+      const fatPlacemarks =
+        getFatPlacemarks(lineFolder);
+
+      let sourcePlacemarks = [
+        ...fatPlacemarks,
       ];
 
-      const sourcePlacemarks =
-        sourceFolderNames.flatMap(
-          (sourceFolderName) => {
-            const sourceFolders =
-              getFoldersByName(
-                lineFolder,
-                sourceFolderName,
-              ).filter(
-                (sourceFolder) =>
-                  getLineAncestor(
-                    sourceFolder,
-                  ) === lineFolder,
-              );
-
-            return sourceFolders.flatMap(
-              (sourceFolder) =>
-                getDirectChildPlacemarks(
-                  sourceFolder,
-                ),
-            );
-          },
-        );
+      /*
+       * Khusus LINE A, tambahkan Placemark
+       * dari folder FDT utama yang berada di
+       * luar folder LINE.
+       */
+      if (lineName === "LINE A") {
+        sourcePlacemarks = [
+          ...fatPlacemarks,
+          ...mainFdtPlacemarks,
+        ];
+      }
 
       const slackPlacemarks =
         getDirectChildPlacemarks(
@@ -184,8 +239,8 @@ function syncSlackHangerWithSources(
         );
 
       /*
-       * Semua Placemark yang sudah ada
-       * diubah namanya menjadi SLACK CABLE.
+       * Rename Placemark yang sudah ada
+       * di dalam SLACK HANGER.
        */
       slackPlacemarks.forEach((placemark) => {
         renamePlacemark(
@@ -195,16 +250,16 @@ function syncSlackHangerWithSources(
       });
 
       /*
-       * Jika FAT dan FDT sama-sama tidak
-       * memiliki Placemark, jangan menyalin apa pun.
+       * Jika tidak ada sumber FAT/FDT,
+       * jangan melakukan penyalinan.
        */
       if (sourcePlacemarks.length === 0) {
         return;
       }
 
       /*
-       * Hanya menyalin jumlah yang masih kurang.
-       * Jumlah target mengikuti FAT + FDT.
+       * Tambahkan Placemark hanya jika
+       * jumlah SLACK HANGER masih kurang.
        */
       const missingCount =
         sourcePlacemarks.length -
@@ -253,8 +308,11 @@ export function repairEMRIcon(
   );
 
   /*
-   * Jumlah Slack Hanger mengikuti
-   * gabungan FAT + FDT di LINE yang sama.
+   * LINE A:
+   * FAT LINE A + FDT utama
+   *
+   * LINE lainnya:
+   * FAT di LINE masing-masing
    */
   syncSlackHangerWithSources(xml);
 
