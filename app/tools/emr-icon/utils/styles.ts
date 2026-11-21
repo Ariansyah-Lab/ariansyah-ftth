@@ -29,9 +29,7 @@ export const STYLES: Record<string, StyleDefinition> = {
     variants: [
       { keywords: ["48C"], color: "#AA00FF" },
       { keywords: ["72C"], color: "#550000" },
-      { keywords: ["96C"], color: "#FF0000" },
-      { keywords: ["144C"], color: "#FFFF00" },
-      { keywords: ["288C"], color: "#FFAA00" },
+      
       {
         keywords: ["SHARING", "3RD PARTY", "EXT"],
         color: "#FFFFFF",
