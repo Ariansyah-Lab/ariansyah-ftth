@@ -186,7 +186,10 @@ function syncSlackHangerWithSources(xml: XMLDocument) {
 
     let sourcePlacemarks = [...fatPlacemarks];
 
-    // LINE A memakai FAT LINE A + FDT utama.
+    /*
+     * Hanya LINE A yang mengambil Placemark
+     * dari FDT utama di luar folder LINE.
+     */
     if (lineName === "LINE A") {
       sourcePlacemarks = [
         ...fatPlacemarks,
@@ -247,7 +250,10 @@ function calculateDistanceInMeters(
       Math.sin(longitudeDifference / 2) ** 2;
 
   const c =
-    2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    2 * Math.atan2(
+      Math.sqrt(a),
+      Math.sqrt(1 - a),
+    );
 
   return earthRadius * c;
 }
@@ -261,7 +267,9 @@ function getCoordinates(
   const coordinateNode =
     placemark.getElementsByTagName("coordinates")[0];
 
-  if (!coordinateNode?.textContent) return [];
+  if (!coordinateNode?.textContent) {
+    return [];
+  }
 
   return coordinateNode.textContent
     .trim()
@@ -286,6 +294,7 @@ function getLineStringLengthInMeters(
   placemark: Element,
 ): number {
   const coordinates = getCoordinates(placemark);
+
   let totalLength = 0;
 
   for (let index = 1; index < coordinates.length; index++) {
@@ -302,7 +311,7 @@ function getLineStringLengthInMeters(
 
 function renameSlingWirePlacemarks(folder: Element) {
   getAllPlacemarksInside(folder).forEach((placemark) => {
-    const length = Math.round(
+    const length = Math.ceil(
       getLineStringLengthInMeters(placemark),
     );
 
@@ -335,20 +344,27 @@ function updateDistributionCableDescriptions(
     ),
   );
 
-  const mainFdtPlacemarks = getMainFdtPlacemarks(xml);
+  const mainFdtPlacemarks =
+    getMainFdtPlacemarks(xml);
 
   lineFolders.forEach((lineFolder) => {
-    const lineName = getFolderName(lineFolder).toUpperCase();
+    const fatCount =
+      getFatPlacemarks(lineFolder).length;
 
-    const fatCount = getFatPlacemarks(lineFolder).length;
-
+    /*
+     * Setiap LINE memiliki 1 slack FDT
+     * jika FDT utama memiliki Placemark.
+     */
     const fdtCount =
-      lineName === "LINE A"
-        ? mainFdtPlacemarks.length
+      mainFdtPlacemarks.length > 0
+        ? 1
         : 0;
 
-    const totalSlackUnits = fatCount + fdtCount;
-    const slackLength = totalSlackUnits * 20;
+    const totalSlackUnits =
+      fatCount + fdtCount;
+
+    const slackLength =
+      totalSlackUnits * 20;
 
     const distributionFolders =
       getDistributionFolders(lineFolder);
@@ -358,17 +374,25 @@ function updateDistributionCableDescriptions(
         getAllPlacemarksInside(folder),
       );
 
-    const totalRoute = Math.round(
+    /*
+     * Selalu dibulatkan ke atas.
+     */
+    const totalRoute = Math.ceil(
       distributionPlacemarks.reduce(
         (total, placemark) =>
-          total + getLineStringLengthInMeters(placemark),
+          total +
+          getLineStringLengthInMeters(placemark),
         0,
       ),
     );
 
-    const subtotal = totalRoute + slackLength;
-    const toleranceLength = subtotal * 0.05;
-    const totalLengthCable = Math.round(
+    const subtotal =
+      totalRoute + slackLength;
+
+    const toleranceLength =
+      subtotal * 0.05;
+
+    const totalLengthCable = Math.ceil(
       subtotal + toleranceLength,
     );
 
@@ -491,31 +515,35 @@ function getHpCoverPlacemarks(
 function updateBoundaryHpDescriptions(
   xml: XMLDocument,
 ) {
-  const hpCoverPlacemarks = getHpCoverPlacemarks(xml);
+  const hpCoverPlacemarks =
+    getHpCoverPlacemarks(xml);
 
   const boundaryFolders = Array.from(
     xml.getElementsByTagName("Folder"),
   ).filter(
     (folder) =>
-      getFolderName(folder).toUpperCase() === "BOUNDARY FAT",
+      getFolderName(folder).toUpperCase() ===
+      "BOUNDARY FAT",
   );
 
   boundaryFolders.forEach((boundaryFolder) => {
     getAllPlacemarksInside(boundaryFolder).forEach(
       (boundaryPlacemark) => {
-        const hpCount = hpCoverPlacemarks.filter(
-          (hpPlacemark) => {
-            const hpPoint = getCoordinates(hpPlacemark)[0];
+        const hpCount =
+          hpCoverPlacemarks.filter(
+            (hpPlacemark) => {
+              const hpPoint =
+                getCoordinates(hpPlacemark)[0];
 
-            return (
-              hpPoint !== undefined &&
-              isPointInsideBoundary(
-                hpPoint,
-                boundaryPlacemark,
-              )
-            );
-          },
-        ).length;
+              return (
+                hpPoint !== undefined &&
+                isPointInsideBoundary(
+                  hpPoint,
+                  boundaryPlacemark,
+                )
+              );
+            },
+          ).length;
 
         setPlacemarkDescription(
           boundaryPlacemark,
@@ -548,29 +576,44 @@ export function repairEMRIcon(kml: string): string {
     if (!folderName) return;
 
     const standard = STANDARD[folderName];
+
     if (!standard) return;
 
     const style = STYLES[standard.style];
+
     if (!style) return;
 
-    if (folderName.toUpperCase() === "SLING WIRE") {
+    if (
+      folderName.toUpperCase() ===
+      "SLING WIRE"
+    ) {
       renameSlingWirePlacemarks(folder);
     }
 
-    getAllPlacemarksInside(folder).forEach((placemark) => {
-      if (style.type === "point") {
-        applyPointStyle(
-          placemark,
-          style,
-          folderName,
-        );
-      } else if (style.type === "line") {
-        applyLineStyle(placemark, style);
-      } else if (style.type === "polygon") {
-        applyPolygonStyle(placemark, style);
-      }
-    });
+    getAllPlacemarksInside(folder).forEach(
+      (placemark) => {
+        if (style.type === "point") {
+          applyPointStyle(
+            placemark,
+            style,
+            folderName,
+          );
+        } else if (style.type === "line") {
+          applyLineStyle(
+            placemark,
+            style,
+          );
+        } else if (style.type === "polygon") {
+          applyPolygonStyle(
+            placemark,
+            style,
+          );
+        }
+      },
+    );
   });
 
-  return new XMLSerializer().serializeToString(xml);
+  return new XMLSerializer().serializeToString(
+    xml,
+  );
 }
