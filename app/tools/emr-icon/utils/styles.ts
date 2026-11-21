@@ -243,6 +243,6 @@ export const STYLES: Record<string, StyleDefinition> = {
     outlineColor: "#009999",
 
     fillOpacity: 0.4,
-    outlineOpacity: 0.4,
+    outlineOpacity: 1,
   },
 };

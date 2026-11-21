@@ -9,52 +9,33 @@ import {
 
 function getFolderName(folder: Element): string {
   return (
-    folder
-      .getElementsByTagName("name")[0]
-      ?.textContent
-      ?.trim() ?? ""
+    folder.getElementsByTagName("name")[0]?.textContent?.trim() ??
+    ""
   );
 }
 
-function getDirectChildFolders(
-  folder: Element,
-): Element[] {
+function getDirectChildFolders(folder: Element): Element[] {
   return Array.from(folder.children).filter(
-    (child) =>
-      child.tagName.toLowerCase() === "folder",
+    (child) => child.tagName.toLowerCase() === "folder",
   );
 }
 
-function getDirectChildPlacemarks(
-  folder: Element,
-): Element[] {
+function getDirectChildPlacemarks(folder: Element): Element[] {
   return Array.from(folder.children).filter(
-    (child) =>
-      child.tagName.toLowerCase() === "placemark",
+    (child) => child.tagName.toLowerCase() === "placemark",
   );
 }
 
-function getAllPlacemarksInside(
-  folder: Element,
-): Element[] {
-  return Array.from(
-    folder.getElementsByTagName("Placemark"),
-  );
+function getAllPlacemarksInside(folder: Element): Element[] {
+  return Array.from(folder.getElementsByTagName("Placemark"));
 }
 
-function getLineAncestor(
-  folder: Element,
-): Element | null {
-  let current: Element | null =
-    folder.parentElement;
+function getLineAncestor(folder: Element): Element | null {
+  let current: Element | null = folder.parentElement;
 
   while (current) {
-    if (
-      current.tagName.toLowerCase() ===
-      "folder"
-    ) {
-      const folderName =
-        getFolderName(current).toUpperCase();
+    if (current.tagName.toLowerCase() === "folder") {
+      const folderName = getFolderName(current).toUpperCase();
 
       if (/^LINE(?:\s|$)/.test(folderName)) {
         return current;
@@ -67,18 +48,12 @@ function getLineAncestor(
   return null;
 }
 
-function getAllFoldersInside(
-  folder: Element,
-): Element[] {
+function getAllFoldersInside(folder: Element): Element[] {
   const folders: Element[] = [];
 
-  for (const childFolder of getDirectChildFolders(
-    folder,
-  )) {
+  for (const childFolder of getDirectChildFolders(folder)) {
     folders.push(childFolder);
-    folders.push(
-      ...getAllFoldersInside(childFolder),
-    );
+    folders.push(...getAllFoldersInside(childFolder));
   }
 
   return folders;
@@ -88,52 +63,39 @@ function getFoldersByName(
   rootFolder: Element,
   targetName: string,
 ): Element[] {
-  const normalizedTarget =
-    targetName.trim().toUpperCase();
+  const normalizedTarget = targetName.trim().toUpperCase();
 
   return getAllFoldersInside(rootFolder).filter(
     (folder) =>
-      getFolderName(folder).toUpperCase() ===
-      normalizedTarget,
+      getFolderName(folder).toUpperCase() === normalizedTarget,
   );
 }
 
-function getTopLevelFolders(
-  xml: XMLDocument,
-): Element[] {
-  return Array.from(
-    xml.getElementsByTagName("Folder"),
-  ).filter((folder) => {
-    let parent = folder.parentElement;
+function getTopLevelFolders(xml: XMLDocument): Element[] {
+  return Array.from(xml.getElementsByTagName("Folder")).filter(
+    (folder) => {
+      let parent = folder.parentElement;
 
-    while (parent) {
-      if (
-        parent.tagName.toLowerCase() ===
-        "folder"
-      ) {
-        return false;
+      while (parent) {
+        if (parent.tagName.toLowerCase() === "folder") {
+          return false;
+        }
+
+        parent = parent.parentElement;
       }
 
-      parent = parent.parentElement;
-    }
-
-    return true;
-  });
+      return true;
+    },
+  );
 }
 
-function getMainFdtPlacemarks(
-  xml: XMLDocument,
-): Element[] {
-  const topLevelFdtFolders =
-    getTopLevelFolders(xml).filter(
-      (folder) =>
-        getFolderName(folder).toUpperCase() ===
-        "FDT",
-    );
+function getMainFdtPlacemarks(xml: XMLDocument): Element[] {
+  const fdtFolders = getTopLevelFolders(xml).filter(
+    (folder) => getFolderName(folder).toUpperCase() === "FDT",
+  );
 
-  return topLevelFdtFolders.flatMap(
-    (fdtFolder) =>
-      getAllPlacemarksInside(fdtFolder),
+  return fdtFolders.flatMap((folder) =>
+    getAllPlacemarksInside(folder),
   );
 }
 
@@ -145,16 +107,11 @@ function renamePlacemark(
 
   if (!xml) return;
 
-  let nameNode =
-    placemark.getElementsByTagName("name")[0];
+  let nameNode = placemark.getElementsByTagName("name")[0];
 
   if (!nameNode) {
     nameNode = xml.createElement("name");
-
-    placemark.insertBefore(
-      nameNode,
-      placemark.firstChild,
-    );
+    placemark.insertBefore(nameNode, placemark.firstChild);
   }
 
   nameNode.textContent = newName;
@@ -169,19 +126,12 @@ function setPlacemarkDescription(
   if (!xml) return;
 
   let descriptionNode =
-    placemark.getElementsByTagName(
-      "description",
-    )[0];
+    placemark.getElementsByTagName("description")[0];
 
   if (!descriptionNode) {
-    descriptionNode = xml.createElement(
-      "description",
-    );
+    descriptionNode = xml.createElement("description");
 
-    const nameNode =
-      placemark.getElementsByTagName(
-        "name",
-      )[0];
+    const nameNode = placemark.getElementsByTagName("name")[0];
 
     if (nameNode?.nextSibling) {
       placemark.insertBefore(
@@ -189,143 +139,85 @@ function setPlacemarkDescription(
         nameNode.nextSibling,
       );
     } else {
-      placemark.appendChild(
-        descriptionNode,
-      );
+      placemark.appendChild(descriptionNode);
     }
   }
 
-  descriptionNode.textContent =
-    descriptionText;
+  descriptionNode.textContent = descriptionText;
 }
 
-function removeDuplicatedIds(
-  placemark: Element,
-) {
+function removeDuplicatedIds(placemark: Element) {
   placemark.removeAttribute("id");
 
-  const descendants = Array.from(
-    placemark.getElementsByTagName("*"),
-  );
-
-  descendants.forEach((element) => {
-    element.removeAttribute("id");
-  });
-}
-
-function getFatPlacemarks(
-  lineFolder: Element,
-): Element[] {
-  const fatFolders = getFoldersByName(
-    lineFolder,
-    "FAT",
-  ).filter(
-    (fatFolder) =>
-      getLineAncestor(fatFolder) ===
-      lineFolder,
-  );
-
-  return fatFolders.flatMap(
-    (fatFolder) =>
-      getDirectChildPlacemarks(fatFolder),
-  );
-}
-
-function syncSlackHangerWithSources(
-  xml: XMLDocument,
-) {
-  const allFolders = Array.from(
-    xml.getElementsByTagName("Folder"),
-  );
-
-  const slackHangerFolders =
-    allFolders.filter(
-      (folder) =>
-        getFolderName(folder).toUpperCase() ===
-        "SLACK HANGER",
-    );
-
-  const mainFdtPlacemarks =
-    getMainFdtPlacemarks(xml);
-
-  slackHangerFolders.forEach(
-    (slackHangerFolder) => {
-      const lineFolder =
-        getLineAncestor(slackHangerFolder);
-
-      if (!lineFolder) return;
-
-      const lineName =
-        getFolderName(lineFolder).toUpperCase();
-
-      const fatPlacemarks =
-        getFatPlacemarks(lineFolder);
-
-      let sourcePlacemarks = [
-        ...fatPlacemarks,
-      ];
-
-      /*
-       * LINE A mengambil Placemark
-       * dari FAT LINE A + FDT utama.
-       */
-      if (lineName === "LINE A") {
-        sourcePlacemarks = [
-          ...fatPlacemarks,
-          ...mainFdtPlacemarks,
-        ];
-      }
-
-      const slackPlacemarks =
-        getDirectChildPlacemarks(
-          slackHangerFolder,
-        );
-
-      slackPlacemarks.forEach((placemark) => {
-        renamePlacemark(
-          placemark,
-          "SLACK CABLE",
-        );
-      });
-
-      if (sourcePlacemarks.length === 0) {
-        return;
-      }
-
-      const missingCount =
-        sourcePlacemarks.length -
-        slackPlacemarks.length;
-
-      if (missingCount <= 0) {
-        return;
-      }
-
-      const placemarksToCopy =
-        sourcePlacemarks.slice(0, missingCount);
-
-      placemarksToCopy.forEach(
-        (sourcePlacemark) => {
-          const copiedPlacemark =
-            sourcePlacemark.cloneNode(
-              true,
-            ) as Element;
-
-          removeDuplicatedIds(
-            copiedPlacemark,
-          );
-
-          renamePlacemark(
-            copiedPlacemark,
-            "SLACK CABLE",
-          );
-
-          slackHangerFolder.appendChild(
-            copiedPlacemark,
-          );
-        },
-      );
+  Array.from(placemark.getElementsByTagName("*")).forEach(
+    (element) => {
+      element.removeAttribute("id");
     },
   );
+}
+
+function getFatPlacemarks(lineFolder: Element): Element[] {
+  const fatFolders = getFoldersByName(lineFolder, "FAT").filter(
+    (folder) => getLineAncestor(folder) === lineFolder,
+  );
+
+  return fatFolders.flatMap((folder) =>
+    getDirectChildPlacemarks(folder),
+  );
+}
+
+function syncSlackHangerWithSources(xml: XMLDocument) {
+  const allFolders = Array.from(xml.getElementsByTagName("Folder"));
+
+  const slackHangerFolders = allFolders.filter(
+    (folder) =>
+      getFolderName(folder).toUpperCase() === "SLACK HANGER",
+  );
+
+  const mainFdtPlacemarks = getMainFdtPlacemarks(xml);
+
+  slackHangerFolders.forEach((slackHangerFolder) => {
+    const lineFolder = getLineAncestor(slackHangerFolder);
+
+    if (!lineFolder) return;
+
+    const lineName = getFolderName(lineFolder).toUpperCase();
+    const fatPlacemarks = getFatPlacemarks(lineFolder);
+
+    let sourcePlacemarks = [...fatPlacemarks];
+
+    // LINE A memakai FAT LINE A + FDT utama.
+    if (lineName === "LINE A") {
+      sourcePlacemarks = [
+        ...fatPlacemarks,
+        ...mainFdtPlacemarks,
+      ];
+    }
+
+    const slackPlacemarks =
+      getDirectChildPlacemarks(slackHangerFolder);
+
+    slackPlacemarks.forEach((placemark) => {
+      renamePlacemark(placemark, "SLACK CABLE");
+    });
+
+    const missingCount =
+      sourcePlacemarks.length - slackPlacemarks.length;
+
+    if (missingCount <= 0) return;
+
+    sourcePlacemarks
+      .slice(0, missingCount)
+      .forEach((sourcePlacemark) => {
+        const copiedPlacemark =
+          sourcePlacemark.cloneNode(true) as Element;
+
+        removeDuplicatedIds(copiedPlacemark);
+        renamePlacemark(copiedPlacemark, "SLACK CABLE");
+
+        slackHangerFolder.appendChild(copiedPlacemark);
+      });
+  });
 }
 
 function toRadians(value: number): number {
@@ -355,10 +247,7 @@ function calculateDistanceInMeters(
       Math.sin(longitudeDifference / 2) ** 2;
 
   const c =
-    2 * Math.atan2(
-      Math.sqrt(a),
-      Math.sqrt(1 - a),
-    );
+    2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
   return earthRadius * c;
 }
@@ -370,22 +259,16 @@ function getCoordinates(
   latitude: number;
 }> {
   const coordinateNode =
-    placemark.getElementsByTagName(
-      "coordinates",
-    )[0];
+    placemark.getElementsByTagName("coordinates")[0];
 
-  if (!coordinateNode?.textContent) {
-    return [];
-  }
+  if (!coordinateNode?.textContent) return [];
 
   return coordinateNode.textContent
     .trim()
     .split(/\s+/)
     .map((coordinate) => {
-      const [
-        longitude,
-        latitude,
-      ] = coordinate.split(",").map(Number);
+      const [longitude, latitude] =
+        coordinate.split(",").map(Number);
 
       return {
         longitude,
@@ -402,39 +285,25 @@ function getCoordinates(
 function getLineStringLengthInMeters(
   placemark: Element,
 ): number {
-  const coordinates =
-    getCoordinates(placemark);
-
+  const coordinates = getCoordinates(placemark);
   let totalLength = 0;
 
-  for (
-    let index = 1;
-    index < coordinates.length;
-    index++
-  ) {
-    totalLength +=
-      calculateDistanceInMeters(
-        coordinates[index - 1].longitude,
-        coordinates[index - 1].latitude,
-        coordinates[index].longitude,
-        coordinates[index].latitude,
-      );
+  for (let index = 1; index < coordinates.length; index++) {
+    totalLength += calculateDistanceInMeters(
+      coordinates[index - 1].longitude,
+      coordinates[index - 1].latitude,
+      coordinates[index].longitude,
+      coordinates[index].latitude,
+    );
   }
 
   return totalLength;
 }
 
-function renameSlingWirePlacemarks(
-  folder: Element,
-) {
-  const placemarks =
-    getAllPlacemarksInside(folder);
-
-  placemarks.forEach((placemark) => {
+function renameSlingWirePlacemarks(folder: Element) {
+  getAllPlacemarksInside(folder).forEach((placemark) => {
     const length = Math.round(
-      getLineStringLengthInMeters(
-        placemark,
-      ),
+      getLineStringLengthInMeters(placemark),
     );
 
     renamePlacemark(
@@ -444,16 +313,80 @@ function renameSlingWirePlacemarks(
   });
 }
 
-function getPointCoordinate(
-  placemark: Element,
-): {
-  longitude: number;
-  latitude: number;
-} | null {
-  const coordinates =
-    getCoordinates(placemark);
+function getDistributionFolders(
+  lineFolder: Element,
+): Element[] {
+  return getFoldersByName(
+    lineFolder,
+    "DISTRIBUTION CABLE",
+  ).filter(
+    (folder) => getLineAncestor(folder) === lineFolder,
+  );
+}
 
-  return coordinates[0] ?? null;
+function updateDistributionCableDescriptions(
+  xml: XMLDocument,
+) {
+  const lineFolders = Array.from(
+    xml.getElementsByTagName("Folder"),
+  ).filter((folder) =>
+    /^LINE(?:\s|$)/.test(
+      getFolderName(folder).toUpperCase(),
+    ),
+  );
+
+  const mainFdtPlacemarks = getMainFdtPlacemarks(xml);
+
+  lineFolders.forEach((lineFolder) => {
+    const lineName = getFolderName(lineFolder).toUpperCase();
+
+    const fatCount = getFatPlacemarks(lineFolder).length;
+
+    const fdtCount =
+      lineName === "LINE A"
+        ? mainFdtPlacemarks.length
+        : 0;
+
+    const totalSlackUnits = fatCount + fdtCount;
+    const slackLength = totalSlackUnits * 20;
+
+    const distributionFolders =
+      getDistributionFolders(lineFolder);
+
+    const distributionPlacemarks =
+      distributionFolders.flatMap((folder) =>
+        getAllPlacemarksInside(folder),
+      );
+
+    const totalRoute = Math.round(
+      distributionPlacemarks.reduce(
+        (total, placemark) =>
+          total + getLineStringLengthInMeters(placemark),
+        0,
+      ),
+    );
+
+    const subtotal = totalRoute + slackLength;
+    const toleranceLength = subtotal * 0.05;
+    const totalLengthCable = Math.round(
+      subtotal + toleranceLength,
+    );
+
+    const description = [
+      "Deskripsi :",
+      `Total Route       : ${totalRoute} m`,
+      `Total Slack       : ${totalSlackUnits} unit (${fdtCount} slack FDT & ${fatCount} slack FAT) @20 m`,
+      "Toleransi         : 5%",
+      `Total Length Cable : ${totalRoute} + ${slackLength} = ${subtotal} m + (${subtotal} m x 5%) = ${totalLengthCable} m`,
+    ].join("\n");
+
+    distributionPlacemarks.forEach((placemark) => {
+      setPlacemarkDescription(
+        placemark,
+        description,
+      );
+    });
+  });
 }
 
 function getPolygonRings(
@@ -464,28 +397,18 @@ function getPolygonRings(
     latitude: number;
   }>
 > {
-  const coordinateNodes = Array.from(
-    placemark.getElementsByTagName(
-      "coordinates",
-    ),
-  );
+  return Array.from(
+    placemark.getElementsByTagName("coordinates"),
+  )
+    .map((node) => {
+      if (!node.textContent) return [];
 
-  return coordinateNodes
-    .map((coordinateNode) => {
-      if (!coordinateNode.textContent) {
-        return [];
-      }
-
-      return coordinateNode.textContent
+      return node.textContent
         .trim()
         .split(/\s+/)
         .map((coordinate) => {
-          const [
-            longitude,
-            latitude,
-          ] = coordinate
-            .split(",")
-            .map(Number);
+          const [longitude, latitude] =
+            coordinate.split(",").map(Number);
 
           return {
             longitude,
@@ -494,12 +417,8 @@ function getPolygonRings(
         })
         .filter(
           (coordinate) =>
-            Number.isFinite(
-              coordinate.longitude,
-            ) &&
-            Number.isFinite(
-              coordinate.latitude,
-            ),
+            Number.isFinite(coordinate.longitude) &&
+            Number.isFinite(coordinate.latitude),
         );
     })
     .filter((ring) => ring.length >= 3);
@@ -518,8 +437,7 @@ function isPointInsidePolygon(
   let inside = false;
 
   for (
-    let index = 0, previousIndex =
-      polygon.length - 1;
+    let index = 0, previousIndex = polygon.length - 1;
     index < polygon.length;
     previousIndex = index++
   ) {
@@ -530,12 +448,9 @@ function isPointInsidePolygon(
       current.latitude > point.latitude !==
         previous.latitude > point.latitude &&
       point.longitude <
-        ((previous.longitude -
-          current.longitude) *
-          (point.latitude -
-            current.latitude)) /
-          (previous.latitude -
-            current.latitude) +
+        ((previous.longitude - current.longitude) *
+          (point.latitude - current.latitude)) /
+          (previous.latitude - current.latitude) +
           current.longitude;
 
     if (intersects) {
@@ -553,11 +468,7 @@ function isPointInsideBoundary(
   },
   boundaryPlacemark: Element,
 ): boolean {
-  const rings = getPolygonRings(
-    boundaryPlacemark,
-  );
-
-  return rings.some((ring) =>
+  return getPolygonRings(boundaryPlacemark).some((ring) =>
     isPointInsidePolygon(point, ring),
   );
 }
@@ -565,60 +476,46 @@ function isPointInsideBoundary(
 function getHpCoverPlacemarks(
   xml: XMLDocument,
 ): Element[] {
-  const folders = Array.from(
+  return Array.from(
     xml.getElementsByTagName("Folder"),
-  ).filter(
-    (folder) =>
-      getFolderName(folder).toUpperCase() ===
-      "HP COVER",
-  );
-
-  return folders.flatMap((folder) =>
-    getAllPlacemarksInside(folder),
-  );
+  )
+    .filter(
+      (folder) =>
+        getFolderName(folder).toUpperCase() === "HP COVER",
+    )
+    .flatMap((folder) =>
+      getAllPlacemarksInside(folder),
+    );
 }
 
 function updateBoundaryHpDescriptions(
   xml: XMLDocument,
 ) {
-  const hpCoverPlacemarks =
-    getHpCoverPlacemarks(xml);
+  const hpCoverPlacemarks = getHpCoverPlacemarks(xml);
 
-  const boundaryFolders =
-    Array.from(
-      xml.getElementsByTagName("Folder"),
-    ).filter(
-      (folder) =>
-        getFolderName(folder).toUpperCase() ===
-        "BOUNDARY FAT",
-    );
+  const boundaryFolders = Array.from(
+    xml.getElementsByTagName("Folder"),
+  ).filter(
+    (folder) =>
+      getFolderName(folder).toUpperCase() === "BOUNDARY FAT",
+  );
 
   boundaryFolders.forEach((boundaryFolder) => {
-    const boundaryPlacemarks =
-      getAllPlacemarksInside(
-        boundaryFolder,
-      );
-
-    boundaryPlacemarks.forEach(
+    getAllPlacemarksInside(boundaryFolder).forEach(
       (boundaryPlacemark) => {
-        const hpCount =
-          hpCoverPlacemarks.filter(
-            (hpPlacemark) => {
-              const hpPoint =
-                getPointCoordinate(
-                  hpPlacemark,
-                );
+        const hpCount = hpCoverPlacemarks.filter(
+          (hpPlacemark) => {
+            const hpPoint = getCoordinates(hpPlacemark)[0];
 
-              if (!hpPoint) {
-                return false;
-              }
-
-              return isPointInsideBoundary(
+            return (
+              hpPoint !== undefined &&
+              isPointInsideBoundary(
                 hpPoint,
                 boundaryPlacemark,
-              );
-            },
-          ).length;
+              )
+            );
+          },
+        ).length;
 
         setPlacemarkDescription(
           boundaryPlacemark,
@@ -629,9 +526,7 @@ function updateBoundaryHpDescriptions(
   });
 }
 
-export function repairEMRIcon(
-  kml: string,
-): string {
+export function repairEMRIcon(kml: string): string {
   const parser = new DOMParser();
 
   const xml = parser.parseFromString(
@@ -639,18 +534,9 @@ export function repairEMRIcon(
     "application/xml",
   );
 
-  /*
-   * Sinkronisasi SLACK HANGER:
-   * - LINE A = FAT LINE A + FDT utama
-   * - LINE lainnya = FAT pada LINE masing-masing
-   */
   syncSlackHangerWithSources(xml);
-
-  /*
-   * Menghitung HP COVER yang berada
-   * di dalam setiap polygon BOUNDARY FAT.
-   */
   updateBoundaryHpDescriptions(xml);
+  updateDistributionCableDescriptions(xml);
 
   const folders = Array.from(
     xml.getElementsByTagName("Folder"),
@@ -662,27 +548,16 @@ export function repairEMRIcon(
     if (!folderName) return;
 
     const standard = STANDARD[folderName];
-
     if (!standard) return;
 
     const style = STYLES[standard.style];
-
     if (!style) return;
 
-    if (
-      folderName.toUpperCase() ===
-      "SLING WIRE"
-    ) {
+    if (folderName.toUpperCase() === "SLING WIRE") {
       renameSlingWirePlacemarks(folder);
     }
 
-    const placemarks = Array.from(
-      folder.getElementsByTagName(
-        "Placemark",
-      ),
-    );
-
-    placemarks.forEach((placemark) => {
+    getAllPlacemarksInside(folder).forEach((placemark) => {
       if (style.type === "point") {
         applyPointStyle(
           placemark,
@@ -690,20 +565,12 @@ export function repairEMRIcon(
           folderName,
         );
       } else if (style.type === "line") {
-        applyLineStyle(
-          placemark,
-          style,
-        );
+        applyLineStyle(placemark, style);
       } else if (style.type === "polygon") {
-        applyPolygonStyle(
-          placemark,
-          style,
-        );
+        applyPolygonStyle(placemark, style);
       }
     });
   });
 
-  return new XMLSerializer().serializeToString(
-    xml,
-  );
+  return new XMLSerializer().serializeToString(xml);
 }
