@@ -355,10 +355,7 @@ function updateDistributionCableDescriptions(
      * Setiap LINE memiliki 1 slack FDT
      * jika FDT utama memiliki Placemark.
      */
-    const fdtCount =
-      mainFdtPlacemarks.length > 0
-        ? 1
-        : 0;
+    const fdtCount = 1;
 
     const totalSlackUnits =
       fatCount + fdtCount;
